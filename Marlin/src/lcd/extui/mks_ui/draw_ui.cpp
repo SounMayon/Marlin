@@ -65,6 +65,43 @@ DISP_STATE_STACK disp_state_stack;
 DISP_STATE disp_state = MAIN_UI;
 DISP_STATE last_disp_state;
 PRINT_TIME print_time;
+
+#if ENABLED(MIZAR_S_DUAL_LEVELING)
+  const char *mizar_leveling_text(const mizar_leveling_text_id id) {
+    static const char *const en[] = {
+      "Homing axes",
+      "Move complete. Adjust Z, then confirm.",
+      "Automatic leveling",
+      "Heating for leveling",
+      "Next point",
+      "Leveling complete",
+      "Stopping automatic leveling...",
+      "Automatic leveling stopped",
+      "Manual Z adjustment",
+      "Select a leveling procedure",
+      "Automatic",
+      "Manual"
+    };
+    static const char *const fr[] = {
+      "Mise a l'origine des axes",
+      "Deplacement termine. Ajustez Z puis validez.",
+      "Nivellement automatique",
+      "Chauffe avant nivellement",
+      "Point suivant",
+      "Nivellement termine",
+      "Arret du nivellement automatique...",
+      "Nivellement automatique arrete",
+      "Correction Z manuelle",
+      "Choisissez le type de nivellement",
+      "Automatique",
+      "Manuel"
+    };
+    const uint8_t index = uint8_t(id);
+    return gCfgItems.language == LANG_FRENCH ? fr[index] : en[index];
+  }
+#endif
+
+
 num_key_value_state value;
 keyboard_value_state keyboard_value;
 
