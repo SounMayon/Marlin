@@ -16,7 +16,7 @@ Dernière mise à jour : 2026-11-07 (Europe/Paris) — audit statique MBL et che
 - `46520a3` — affectation PA15 au capteur filament natif (à contrôler avec la sélection de l'écran MKS).
 - `b636a8a` — activation du second pilote Z.
 
-Tête actuelle avant ce checkpoint : `8af51727ad382e6ef1c1b4062cda1a5e9677a031`. Audit du parcours LVGL et de l'API de parsing effectué sur cette base. Les avancées dual-leveling et PLR décrites ci-dessous sont présentes dans l'historique. Ce journal est actualisé à chaque checkpoint.
+Tête avant ce checkpoint : `178320bb0305db298697b5b6800c628d78940535`. Les avancées dual-leveling et PLR décrites ci-dessous sont présentes dans l'historique. Ce journal est actualisé à chaque checkpoint.
 
 ## Architecture de nivellement retrouvée dans le firmware Geeetech
 
@@ -64,20 +64,20 @@ Ces jalons sont sauvegardés dans l'historique Git de la branche. L'état de com
 ## État réel — non validé matériellement
 
 - La branche comporte un premier jeu de paramètres Mizar, mais ceux-ci sont encore préliminaires.
-- Le noyau dual MBL/ABL (objets, planificateur, G29/M421/G42/M420 et persistance de base) est maintenant intégré statiquement, mais reste à compiler et à tester. L'interface LVGL guidée et les séquences de retour/annulation ne sont pas terminées.
+- Le noyau dual MBL/ABL et les écrans LVGL sont intégrés, mais ne sont pas encore compilés avec succès ni testés. Les séquences de retour/annulation nécessitent encore une revue complète.
 - Le parcours EEPROM utilise les zones natives MBL et ABL distinctes, plus un booléen de sélection ; le schéma est marqué V89 et nécessite M502/M500 au premier démarrage.
 - Le mapping runout doit être contrôlé avec les deux branches de pins (LVGL et non-LVGL) : l'écran tactile utilise PA4, donc PA4 ne doit jamais être affecté au capteur filament.
 - Le circuit de détection de perte secteur utilise PE3 dans la configuration LVGL de la carte. L'état électrique réel et les pull-up/pull-down doivent être validés sur carte.
 - La ressource TFT/LVGL et les langues françaises/anglaises ne sont pas encore réintégrées/validées.
 - Les options de pause/runout et la reprise PLR ont été activées en première passe seulement ; leurs séquences doivent être auditées avant d'être déclarées correctes.
-- Aucune compilation PlatformIO ni aucun essai imprimante n'a été exécuté depuis cette session. Les actions de compilation/flash et les essais physiques resteront à effectuer sur PC/imprimante.
+- La compilation PlatformIO a été exécutée par GitHub Actions; le build le plus récent a échoué dans `draw_autoLevel.cpp` sur `style_yellow_label` non déclaré. Aucun essai sur imprimante n'a été effectué.
 
 ## Checkpoint courant — 2026-11-07
 
 - Branche distante vérifiée : `mizar-s-marlin-2.1.2.9`, tête avant ce checkpoint `8af51727ad382e6ef1c1b4062cda1a5e9677a031`. Aucun changement demandé ou appliqué à `main` ni à `bugfix-2.1.x`.
 - `M421_MBL` lit les index via `parser.value_long()` dans un `int32_t` avant de vérifier `GRID_MAX_POINTS_X/Y`, ce qui évite le rétrécissement prématuré des grandes valeurs avant leur rejet.
 - Les fichiers des écrans LVGL automatiques/manuels et les en-têtes de langues EN/FR sont déjà présents dans la branche. Leur parcours complet, l'association des chaînes de texte et les ressources binaires restent à auditer; leur présence seule ne prouve pas que les workflows ni les assets sont intégrés correctement.
-- CI : un workflow Mizar dédié existe; aucune compilation n'a été exécutée ou confirmée pendant cet audit. L'état C++/link reste donc non vérifié.
+- CI : le run `42391389321` pour `178320bb0305db298697b5b6800c628d78940535` a dépassé les erreurs précédentes puis échoué sur le symbole `style_yellow_label` manquant. Remplacé dans le checkpoint suivant par `style_sel_text`; build à relancer.
 - Runout, reprise après coupure, PLR et comportement des callbacks LVGL restent non validés statiquement de bout en bout et matériellement.
 
 ## Prochaine séquence

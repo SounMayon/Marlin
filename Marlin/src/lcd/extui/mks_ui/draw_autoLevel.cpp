@@ -570,7 +570,7 @@ void lv_draw_auto_level(void)
 	lv_label_set_long_mode(auto_level_info, LV_LABEL_LONG_BREAK);
 	lv_obj_set_pos(auto_level_info, 240, 70);
 	lv_obj_set_size(auto_level_info, 250, 0);
-	lv_obj_set_style(auto_level_info, &style_yellow_label);
+	lv_obj_set_style(auto_level_info, &style_sel_text);
 	lv_label_set_align(auto_level_info, LV_LABEL_ALIGN_LEFT);
 	lv_label_set_text(auto_level_info, mizar_leveling_text(MIZAR_TEXT_AUTO_START));
 
