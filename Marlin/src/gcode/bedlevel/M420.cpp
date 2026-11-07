@@ -182,7 +182,7 @@ void GcodeSuite::M420() {
           #if ENABLED(M420_C_USE_MEAN)
             float mesh_sum = 0;
             GRID_LOOP(x, y) mesh_sum += mesh_value(x, y);
-            const float zmean = mesh_sum / float(GRID_MAX_POINTS) + cval;
+            const float zmean = mesh_sum / float(GRID_MAX_POINTS);
           #else
             float lo_val = 100, hi_val = -100;
             GRID_LOOP(x, y) {
