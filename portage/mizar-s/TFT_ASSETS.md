@@ -1,50 +1,49 @@
 # Audit des ressources TFT Mizar S
 
-Audit comparatif effectué le 2026-11-07 sur les révisions indiquées ci-dessous. Cette note corrige le comptage des ressources publié précédemment.
+Audit mis à jour le 2026-11-07 après comparaison du dépôt Geeetech, du paquet firmware fourni et des ressources MKS réellement utilisées par Marlin 2.1.2.9.
 
-## Révisions comparées
+## Révisions et sources comparées
 
-- Sources constructeur : [Geeetech3D/Mizar-S, main à d3656d6db4bb89f552f9afd3aec013db02a1cff9](https://github.com/Geeetech3D/Mizar-S/tree/d3656d6db4bb89f552f9afd3aec013db02a1cff9).
-- Port Marlin : [SounMayon/Marlin, mizar-s-marlin-2.1.2.9 à d81c6016694c6b01754f524dde5e877e401e144f](https://github.com/SounMayon/Marlin/tree/d81c6016694c6b01754f524dde5e877e401e144f).
-- Le dépôt constructeur fournit le firmware Marlin 2.0.7 pour l’écran Mizar S d’origine. Le port utilise le MKS UI de Marlin 2.1.2.9, dont les références d’images ne sont pas identiques.
+- Dépôt constructeur : [Geeetech3D/Mizar-S à d3656d6db4bb89f552f9afd3aec013db02a1cff9](https://github.com/Geeetech3D/Mizar-S/tree/d3656d6db4bb89f552f9afd3aec013db02a1cff9).
+- Code du port : [SounMayon/Marlin, révision d81c6016694c6b01754f524dde5e877e401e144f](https://github.com/SounMayon/Marlin/tree/d81c6016694c6b01754f524dde5e877e401e144f).
+- L'outil Marlin 2.1.2.9 [télécharge les ressources MKS depuis la révision 0263cdaccf](https://github.com/MarlinFirmware/Marlin/blob/2.1.2.9/buildroot/share/PlatformIO/scripts/download_mks_assets.py). Il copie Firmware/mks_pic et Firmware/mks_font dans le dossier assets du build.
+- Le fabricant MKS publie ces répertoires dans [Firmware/mks_pic](https://github.com/makerbase-mks/Mks-Robin-Nano-Marlin2.0-Firmware/tree/0263cdaccf/Firmware/mks_pic) et [Firmware/mks_font](https://github.com/makerbase-mks/Mks-Robin-Nano-Marlin2.0-Firmware/tree/0263cdaccf/Firmware/mks_font).
 
-## Comptage vérifié
+Le Mizar S emploie son UI constructeur dans le dépôt Geeetech; le port utilise l'UI LVGL de Marlin/MKS. Les noms d'images ne sont donc pas identiques.
 
-| Élément | Résultat |
-| --- | ---: |
-| JPG dans `Geeetech3D/Mizar-S/Resource/icon` | 107 |
-| Références d’images dans le `pic_manager.cpp` constructeur | 107 sur 107 ont un JPG de même nom |
-| Noms d’images distincts demandés par le `pic_manager.cpp` du port | 120 |
-| Noms du port avec un JPG constructeur de même nom | 61 |
-| Noms d’images du port sans JPG constructeur homonyme | 59 |
+## Paquet constructeur fourni
 
-Le gestionnaire d’origine référence aussi `FontUNIGBK.bin`, une ressource de police séparée des 107 icônes JPG. Le gestionnaire du port référence lui aussi cette police; elle ne se trouve pas comme image dans `Resource/icon`.
+L'archive MizarS_FM_V201A_230512.rar contient le journal de versions V2.0.1 du 12 mai 2023, un ancien GTM32Source.bin, 107 images assets/*.bin et FontUNIGBK.bin. Le binaire firmware n'a pas été utilisé.
 
-Le chemin français/anglais du port appelle directement `bmp_english.bin`, `bmp_english_sel.bin`, `bmp_french.bin` et `bmp_french_sel.bin`. Le dépôt constructeur contient `bmp_english_sel.jpg`, mais pas les trois autres noms. Les libellés textuels français/anglais sont donc présents dans le code, mais l’écran de choix des langues dépend encore d’images qui ne sont pas fournies par ce dépôt.
+Comparaison par nom exact des fichiers :
 
-Le dépôt du port ne contient aucun paquet TFT `assets/` ni icône MKS `.bin`. Le seul fichier `.bin` trouvé dans l’arbre est un binaire de bootloader JGAurora sans rapport avec les images du Mizar S.
+| Jeu de ressources | Images | Police | Noms d'images du port présents |
+| --- | ---: | ---: | ---: |
+| Archive Mizar S fournie | 107 | 1 | 61 / 120 |
+| Paquet MKS épinglé par Marlin 2.1.2.9 | 139 | 1 | 120 / 120, sans tenir compte de la casse |
 
-## Format et procédure constructeur
+Le paquet Geeetech est celui de l'UI constructeur. Ses 59 noms d'images absents parmi les 120 noms du port ne sont pas des fichiers manquants du paquet MKS utilisé pour ce port. Les binaires du paquet Geeetech ne sont pas copiés dans le dépôt.
 
-Le [README constructeur](https://github.com/Geeetech3D/Mizar-S/blob/d3656d6db4bb89f552f9afd3aec013db02a1cff9/README.md) donne ces réglages pour son convertisseur LVGL :
+## Vérification du paquet utilisé par le port
 
-- `Transparency=NONE-TrueColor`
-- `lv_img_dsc_t=` vide
-- sortie `Bin_565`
+La liste Firmware/mks_pic à la révision 0263cdaccf contient 139 images (4 348 174 octets); Firmware/mks_font fournit FontUNIGBK.bin (470 252 octets). Les 120 noms distincts d'images attendus par pic_manager.cpp sont présents dans ce paquet en comparant les noms sans distinction de casse. Un seul nom varie par la casse : le code demande bmp_mov_changespeed.bin et MKS fournit bmp_mov_changeSpeed.bin. Le gestionnaire d'images compare également les noms sans distinction de casse.
 
-Le [README générique de l’outil](https://github.com/Geeetech3D/Mizar-S/blob/d3656d6db4bb89f552f9afd3aec013db02a1cff9/Resource/Lvgl_image_convert_tool/Readme.md) précise que son auteur n’avait pas utilisé la sortie `.bin`. Cette remarque est générique; elle ne remplace pas le réglage Bin_565 donné dans le README du Mizar S. Le décodeur et les fichiers du paquet final restent à vérifier avec l’écran réel.
+Le workflow de compilation vérifie maintenant que le dossier généré existe et que chacun des noms F(...) non commentés dans pic_manager.cpp est présent, sans tenir compte de la casse. Il a vérifié 118 noms lors du run 42400737794.
 
-La [procédure du Wiki Geeetech](https://wiki.geeetech.com/index.php/Geeetech_Mizar_S_3D_Printer#Update_Firmware) demande de placer le binaire firmware et le dossier `assets` à la racine de la carte TF, puis de supprimer les deux après la mise à jour et de refaire le nivellement.
+L'artefact de ce run contient maintenant firmware.bin, firmware.elf et le dossier assets généré. Le workflow de mise à jour exige donc moins de préparation manuelle du paquet de ressources. Le succès du build et de ce contrôle ne vérifie pas le rendu sur l'écran réel.
 
-## Verdict
+## Langues
 
-Les JPG du dépôt constructeur suffisent pour reproduire les 107 noms de son propre UI Marlin 2.0.7, mais pas pour satisfaire par nom le gestionnaire MKS conservé dans le port 2.1.2.9. Les 59 références sans JPG homonyme, les images de langue manquantes et l’absence d’un paquet `assets/` empêchent de valider l’intégration écran.
+Les quatre images attendues pour le choix français/anglais — bmp_english.bin, bmp_english_sel.bin, bmp_french.bin et bmp_french_sel.bin — existent dans le paquet MKS épinglé. L'archive Geeetech fournie ne contient que bmp_english_sel.bin parmi ces quatre images. Les chaînes françaises et anglaises du port, ainsi que les fichiers nécessaires à l'écran de choix, sont donc présents dans les ressources livrées par le build.
 
-Le lien [Geeetech Support download 57](https://support.geeetech.com/download.html?download_id=57) et le [Pastebin fourni](https://pastebin.com/Uz5YQZjj) n’étaient pas accessibles pendant cet audit. Leur contenu n’a donc pas été utilisé pour supposer que ces ressources manquantes existent.
+## Format et mise à jour
 
-### À faire avant de déclarer l’écran intégré
+Le README du dépôt MKS indique une sortie Binary RGB565 pour les images LVGL et la copie du dossier assets sur la carte SD/TF. Le [README Geeetech](https://github.com/Geeetech3D/Mizar-S/blob/d3656d6db4bb89f552f9afd3aec013db02a1cff9/README.md) documente aussi Bin_565 pour son convertisseur. Le [Wiki Geeetech](https://wiki.geeetech.com/index.php/Geeetech_Mizar_S_3D_Printer#Update_Firmware) indique de mettre le binaire firmware et assets à la racine de la carte TF, puis de les supprimer après mise à jour et de refaire le nivellement.
 
-1. Récupérer et inspecter le paquet officiel de téléchargement, s’il fournit le dossier `assets/` pour la bonne révision d’écran.
-2. Pour chacun des 120 noms du port, identifier une image correcte ou retirer/remapper proprement la référence non utilisée; ne pas créer des alias visuels arbitraires.
-3. Convertir les images en Bin_565 avec les noms attendus et constituer le dossier d’update.
-4. Vérifier sur l’écran la mise à jour TFT, les icônes, le choix FR/EN et les vues de nivellement ABL/MBL.
+Le fichier firmware GTM32Source.bin de l'archive date du paquet V2.0.1 de 2023; il n'est pas le build du port 2.1.2.9 et ne doit pas être présenté comme tel.
+
+## Verdict et contrôles restants
+
+Le paquet TFT est maintenant récupéré à une révision fixe, contrôlé dans le workflow, et inclus avec le firmware dans l'artefact CI. Le jeu d'images constructeur joint n'est pas utilisé comme substitut aux images MKS de l'UI du port.
+
+À vérifier encore sur l'écran Mizar S : mise à jour TFT, rendu des icônes, choix FR/EN et écrans ABL/MBL. Aucun de ces comportements n'a été testé sur la machine.
