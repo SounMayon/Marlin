@@ -63,10 +63,15 @@ class TemporaryBedLevelingState {
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     #include "abl/bbl.h"
-  #elif ENABLED(AUTO_BED_LEVELING_UBL)
+  #endif
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
     #include "ubl/ubl.h"
   #elif ENABLED(MESH_BED_LEVELING)
     #include "mbl/mesh_bed_leveling.h"
+  #endif
+
+  #if ENABLED(MIZAR_S_DUAL_LEVELING)
+    extern bool auto_manu_level_sel;
   #endif
 
   #if ANY(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)
