@@ -170,6 +170,7 @@
   //#define MT_DET_2_PIN                    	PA12    // LVGL UI FILAMENT RUNOUT2 PIN
   //#define MT_DET_3_PIN											PA13 		// LVGL UI FILAMENT RUNOUT3 PIN
   #define MT_DET_PIN_INVERTING             	true  // LVGL UI filament RUNOUT PIN STATE
+  #define MT_DET_PIN_STATE                 HIGH  // Pull-up input: HIGH means filament absent
 
   #define WIFI_IO0_PIN                      -1  	// MKS ESP WIFI IO0 PIN
   #define WIFI_IO1_PIN                      -1   	// MKS ESP WIFI IO1 PIN
