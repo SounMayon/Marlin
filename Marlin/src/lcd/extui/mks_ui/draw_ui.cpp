@@ -134,32 +134,10 @@ lv_point_t line_points[4][2] = {
 };
 void gCfgItems_init() {
   gCfgItems.multiple_language = MULTI_LANGUAGE_ENABLE;
-  #if 1 // LCD_LANGUAGE == en
-    gCfgItems.language = LANG_ENGLISH;
-  #elif LCD_LANGUAGE == zh_CN
-    gCfgItems.language = LANG_SIMPLE_CHINESE;
-  #elif LCD_LANGUAGE == zh_TW
-    gCfgItems.language = LANG_COMPLEX_CHINESE;
-  #elif LCD_LANGUAGE == jp_kana
-    gCfgItems.language = LANG_JAPAN;
-  #elif LCD_LANGUAGE == de
-    gCfgItems.language = LANG_GERMAN;
-  #elif LCD_LANGUAGE == fr
+  #if LCD_LANGUAGE == fr
     gCfgItems.language = LANG_FRENCH;
-  #elif LCD_LANGUAGE == ru
-    gCfgItems.language = LANG_RUSSIAN;
-  #elif LCD_LANGUAGE == ko_KR
-    gCfgItems.language = LANG_KOREAN;
-  #elif LCD_LANGUAGE == tr
-    gCfgItems.language = LANG_TURKISH;
-  #elif LCD_LANGUAGE == es
-    gCfgItems.language = LANG_SPANISH;
-  #elif LCD_LANGUAGE == el
-    gCfgItems.language = LANG_GREEK;
-  #elif LCD_LANGUAGE == it
-    gCfgItems.language = LANG_ITALY;
-  #elif LCD_LANGUAGE == pt
-    gCfgItems.language = LANG_PORTUGUESE;
+  #else
+    gCfgItems.language = LANG_ENGLISH;
   #endif
   gCfgItems.leveling_mode     = 0;
   gCfgItems.from_flash_pic    = false;
@@ -205,6 +183,16 @@ void gCfgItems_init() {
     W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&custom_gcode_command[2], OTHERS_COMMAND_ADDR_2, 100);
     W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&custom_gcode_command[3], OTHERS_COMMAND_ADDR_3, 100);
     W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&custom_gcode_command[4], OTHERS_COMMAND_ADDR_4, 100);
+  }
+  // This firmware exposes only English and French. Clamp legacy SPI-flash
+  // settings from older multilingual builds to the configured default.
+  if (gCfgItems.language != LANG_ENGLISH && gCfgItems.language != LANG_FRENCH) {
+    #if LCD_LANGUAGE == fr
+      gCfgItems.language = LANG_FRENCH;
+    #else
+      gCfgItems.language = LANG_ENGLISH;
+    #endif
+    update_spi_flash();
   }
 
   const byte rot = (TFT_ROTATION & TFT_ROTATE_180) ? 0xEE : 0x00;
