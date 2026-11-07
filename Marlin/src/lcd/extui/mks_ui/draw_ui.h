@@ -461,6 +461,23 @@ extern keyboard_value_state keyboard_value;
   extern bool lvgl_wait_for_move;
   extern bool auto_manu_level_sel;
   typedef enum {
+    MIZAR_TEXT_LEVEL_HOME,
+    MIZAR_TEXT_MANUAL_WAIT,
+    MIZAR_TEXT_AUTO_START,
+    MIZAR_TEXT_HEATING,
+    MIZAR_TEXT_NEXT_POINT,
+    MIZAR_TEXT_LEVEL_DONE,
+    MIZAR_TEXT_LEVEL_FORCE_STOP,
+    MIZAR_TEXT_LEVEL_STOPPED,
+    MIZAR_TEXT_MANUAL_Z,
+    MIZAR_TEXT_LEVEL_SELECT,
+    MIZAR_TEXT_AUTO,
+    MIZAR_TEXT_MANUAL
+  } mizar_leveling_text_id;
+
+  const char *mizar_leveling_text(const mizar_leveling_text_id id);
+
+  typedef enum {
     leveling_start,
     leveling_heat,
     leveling_home,
