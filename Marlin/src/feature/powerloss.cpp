@@ -457,23 +457,31 @@ void PrintJobRecovery::resume() {
       #define HOMING_Z_DOWN 1
     #endif
 
-    float z_now = info.flag.raised ? z_raised : z_print;
-
-    #if !HOMING_Z_DOWN
-      // Set Z to the real position
+    #if ENABLED(POWER_LOSS_STORAGE_Z_VALUE)
+      // The EEPROM record stores the physical Z value (mesh correction applied).
+      float z_now = info.zraise;
       sprintf_P(cmd, PSTR("G92.9Z%s"), dtostrf(z_now, 1, 3, str_1));
       PROCESS_SUBCOMMANDS_NOW(cmd);
+      PROCESS_SUBCOMMANDS_NOW(F("G28R0XY"));
+    #else
+      float z_now = info.flag.raised ? z_raised : z_print;
+
+      #if !HOMING_Z_DOWN
+        // Set Z to the real position
+        sprintf_P(cmd, PSTR("G92.9Z%s"), dtostrf(z_now, 1, 3, str_1));
+        PROCESS_SUBCOMMANDS_NOW(cmd);
+      #endif
+
+      // Does Z need to be raised now? It should be raised before homing XY.
+      if (z_raised > z_now) {
+        z_now = z_raised;
+        sprintf_P(cmd, PSTR("G1Z%sF600"), dtostrf(z_now, 1, 3, str_1));
+        PROCESS_SUBCOMMANDS_NOW(cmd);
+      }
+
+      // Home XY with no Z raise
+      PROCESS_SUBCOMMANDS_NOW(F("G28R0XY"));
     #endif
-
-    // Does Z need to be raised now? It should be raised before homing XY.
-    if (z_raised > z_now) {
-      z_now = z_raised;
-      sprintf_P(cmd, PSTR("G1Z%sF600"), dtostrf(z_now, 1, 3, str_1));
-      PROCESS_SUBCOMMANDS_NOW(cmd);
-    }
-
-    // Home XY with no Z raise
-    PROCESS_SUBCOMMANDS_NOW(F("G28R0XY")); // No raise during G28
 
   #endif
 
@@ -494,8 +502,8 @@ void PrintJobRecovery::resume() {
     sprintf_P(cmd, PSTR("M420S%cZ%s"), '0' + (char)info.flag.leveling, dtostrf(info.fade, 1, 1, str_1));
     PROCESS_SUBCOMMANDS_NOW(cmd);
 
-    #if !HOMING_Z_DOWN
-      // The physical Z was adjusted at power-off so undo the M420S1 correction to Z with G92.9.
+    #if BOTH(!HOMING_Z_DOWN, DISABLED(POWER_LOSS_STORAGE_Z_VALUE))
+      // Undo the native Z-raise correction when the recovery record stores a delta.
       sprintf_P(cmd, PSTR("G92.9Z%s"), dtostrf(z_now, 1, 1, str_1));
       PROCESS_SUBCOMMANDS_NOW(cmd);
     #endif
