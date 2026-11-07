@@ -46,7 +46,7 @@
   #include "../../../feature/powerloss.h"
 #endif
 
-#if ENABLED(PARK_HEAD_ON_PAUSE)
+#if ANY(PARK_HEAD_ON_PAUSE, ADVANCED_PAUSE_FEATURE)
   #include "../../../feature/pause.h"
 #endif
 
@@ -133,8 +133,10 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     else if (DIALOG_IS(PAUSE_MESSAGE_WAITING, PAUSE_MESSAGE_INSERT, PAUSE_MESSAGE_HEAT))
       wait_for_user = false;
-    else if (DIALOG_IS(PAUSE_MESSAGE_OPTION))
-      pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
+    #if M600_PURGE_MORE_RESUMABLE
+      else if (DIALOG_IS(PAUSE_MESSAGE_OPTION))
+        pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
+    #endif
     else if (DIALOG_IS(PAUSE_MESSAGE_RESUME)) {
       goto_previous_ui();
     }
@@ -185,10 +187,12 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
 
 static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
-  if (DIALOG_IS(PAUSE_MESSAGE_OPTION)) {
-    TERN_(ADVANCED_PAUSE_FEATURE, pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT);
-  }
-  else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT, TYPE_FILAMENT_UNLOAD_HEAT, TYPE_FILAMENT_HEAT_LOAD_COMPLETED, TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED)) {
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && M600_PURGE_MORE_RESUMABLE
+    if (DIALOG_IS(PAUSE_MESSAGE_OPTION))
+      pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
+    else
+  #endif
+  if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT, TYPE_FILAMENT_UNLOAD_HEAT, TYPE_FILAMENT_HEAT_LOAD_COMPLETED, TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED)) {
     thermalManager.setTargetHotend(uiCfg.hotendTargetTempBak, uiCfg.extruderIndex);
     goto_previous_ui();
   }

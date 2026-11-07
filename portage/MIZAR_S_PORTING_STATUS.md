@@ -16,7 +16,7 @@ Dernière mise à jour : 2026-11-07 (Europe/Paris) — audit statique MBL et che
 - `46520a3` — affectation PA15 au capteur filament natif (à contrôler avec la sélection de l'écran MKS).
 - `b636a8a` — activation du second pilote Z.
 
-Tête avant ce checkpoint : `178320bb0305db298697b5b6800c628d78940535`. Les avancées dual-leveling et PLR décrites ci-dessous sont présentes dans l'historique. Ce journal est actualisé à chaque checkpoint.
+Tête avant ce checkpoint : `83da497d40881ffc358fad2f91cde9777d51a2c5`. Les avancées dual-leveling et PLR décrites ci-dessous sont présentes dans l'historique. Ce journal est actualisé à chaque checkpoint.
 
 ## Architecture de nivellement retrouvée dans le firmware Geeetech
 
@@ -77,7 +77,7 @@ Ces jalons sont sauvegardés dans l'historique Git de la branche. L'état de com
 - Branche distante vérifiée : `mizar-s-marlin-2.1.2.9`, tête avant ce checkpoint `8af51727ad382e6ef1c1b4062cda1a5e9677a031`. Aucun changement demandé ou appliqué à `main` ni à `bugfix-2.1.x`.
 - `M421_MBL` lit les index via `parser.value_long()` dans un `int32_t` avant de vérifier `GRID_MAX_POINTS_X/Y`, ce qui évite le rétrécissement prématuré des grandes valeurs avant leur rejet.
 - Les fichiers des écrans LVGL automatiques/manuels et les en-têtes de langues EN/FR sont déjà présents dans la branche. Leur parcours complet, l'association des chaînes de texte et les ressources binaires restent à auditer; leur présence seule ne prouve pas que les workflows ni les assets sont intégrés correctement.
-- CI : le run `42391389321` pour `178320bb0305db298697b5b6800c628d78940535` a dépassé les erreurs précédentes puis échoué sur le symbole `style_yellow_label` manquant. Remplacé dans le checkpoint suivant par `style_sel_text`; build à relancer.
+- CI : le run `42391546130` a compilé les écrans de nivellement corrigés, puis a échoué dans `draw_dialog.cpp` car l'API `pause_menu_response` n'est disponible que sous `M600_PURGE_MORE_RESUMABLE` et `pause.h` n'était pas inclus dans cette configuration. Garde corrigée dans le checkpoint suivant; build à relancer.
 - Runout, reprise après coupure, PLR et comportement des callbacks LVGL restent non validés statiquement de bout en bout et matériellement.
 
 ## Prochaine séquence
