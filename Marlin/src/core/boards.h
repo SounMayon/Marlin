@@ -387,6 +387,7 @@
 #define BOARD_ERYONE_ERY32_MINI       5065  // Eryone Ery32 mini (STM32F103VE)
 #define BOARD_PANDA_PI_V29            5066  // Panda Pi V2.9 - Standalone (STM32F103RC)
 #define BOARD_SOVOL_V131              5067  // Sovol V1.3.1 (GD32F103RE)
+#define BOARD_GTM32_LCD35_A10         5068  // Geeetech Mizar S (STM32F103VET6)
 
 //
 // ARM Cortex-M4F
