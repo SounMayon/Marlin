@@ -30,6 +30,19 @@ Le constructeur ne se contente pas de définir simultanément les deux macros. I
 
 C'est ce modèle qu'il faut porter, en adaptant les API au Marlin 2.1.2.9. Il ne faut pas enlever seulement le sanity check « select only one leveling option ».
 
+## Build CI et configuration cible (checkpoint 2026-11-07)
+
+- Le premier essai CI a révélé que `geeetech_lcd35` ne correspondait pas à un environnement accepté par le validateur de carte Marlin 2.1.2.9.
+- L'environnement correct est `STM32F103VE_GTM32_maple`, dans `ini/stm32f1-maple.ini`, conformément à la définition GTM32.
+- Le script de relocation Geeetech a été ajouté : vecteur d'interruption à `0x08007000` et linker adapté à la réservation bootloader.
+- Le build GitHub Actions est désormais configuré pour compiler cet environnement. Les premiers échecs observés étaient des erreurs de sélection d'environnement ; ils ne constituent pas encore un diagnostic des erreurs C++.
+
+### PLR constructeur
+
+- Le Marlin 2.1.2.9 natif utilise un fichier `/PLR` sur la carte SD ; les options Geeetech `POWER_LOSS_STORAGE_EEPROM` et `POWER_LOSS_STORAGE_Z_VALUE` n'étaient pas implémentées dans cette base.
+- Portage commencé : zone EEPROM distincte calculée après `SettingsData`, données de reprise protégées par CRC, chargement/sauvegarde/effacement adaptés, sauvegarde du Z physique avec correction de nivellement, et reprise avec restauration du Z absolu.
+- La taille disponible est protégée par un `static_assert` à la compilation. Ce point doit être validé par le build CI et le comportement réel de la carte.
+
 ## Sauvegardes / jalons du portage (checkpoint 2026-11-07)
 
 Les changements suivants sont déjà committés sur la branche dédiée :
