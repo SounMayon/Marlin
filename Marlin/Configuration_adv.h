@@ -2454,7 +2454,7 @@
  * Currently handles M108, M112, M410, M876
  * NOTE: Not yet implemented for all platforms.
  */
-//#define EMERGENCY_PARSER
+#define EMERGENCY_PARSER  // Required by ADVANCED_PAUSE_FEATURE with the MKS LVGL touchscreen
 
 /**
  * Realtime Reporting (requires EMERGENCY_PARSER)
