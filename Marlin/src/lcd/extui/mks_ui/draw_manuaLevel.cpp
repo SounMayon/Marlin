@@ -416,7 +416,7 @@ void lv_draw_manualLevel(void)
 	leve_hight_value = lv_label_create_empty(scr);
 	lv_label_set_long_mode(leve_hight_value, LV_LABEL_LONG_BREAK);
 	lv_obj_set_size(leve_hight_value, 240, 0);
-	lv_obj_set_style(leve_hight_value, &style_yellow_label);
+	lv_obj_set_style(leve_hight_value, &style_sel_text);
 	lv_label_set_align(leve_hight_value, LV_LABEL_ALIGN_CENTER);
 	lv_obj_align(leve_hight_value, NULL, LV_ALIGN_IN_TOP_MID, 0, 70);
 	lv_label_set_text(leve_hight_value, " ");
