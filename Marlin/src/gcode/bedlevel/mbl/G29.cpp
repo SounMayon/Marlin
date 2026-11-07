@@ -28,7 +28,7 @@
 
 #if ENABLED(MESH_BED_LEVELING)
 
-#include "../../../feature/bedlevel/bedlevel.h"
+#include "../../../feature/bedlevel/mbl.h"
 
 #include "../../gcode.h"
 #include "../../queue.h"
@@ -63,7 +63,11 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  *  S4 Zn.nn        Set z offset. Positive away from bed, negative closer to bed.
  *  S5              Reset and disable mesh
  */
-void GcodeSuite::G29() {
+#if ENABLED(MIZAR_S_DUAL_LEVELING)
+  void GcodeSuite::G29_MBL() {
+#else
+  void GcodeSuite::G29() {
+#endif
 
   DEBUG_SECTION(log_G29, "G29", true);
 
@@ -94,14 +98,14 @@ void GcodeSuite::G29() {
       SERIAL_ECHOPGM("Mesh Bed Leveling ");
       if (leveling_is_valid()) {
         serialprintln_onoff(planner.leveling_active);
-        bedlevel.report_mesh();
+        mbl.report_mesh();
       }
       else
         SERIAL_ECHOLNPGM("has no data.");
       break;
 
     case MeshStart:
-      bedlevel.reset();
+      mbl.reset();
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
         if (parser.seen_test('N'))
@@ -168,7 +172,7 @@ void GcodeSuite::G29() {
       }
       else {
         // Save Z for the previous mesh position
-        bedlevel.set_zigzag_z(mbl_probe_index - 1, current_position.z);
+        mbl.set_zigzag_z(mbl_probe_index - 1, current_position.z);
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, current_position.z));
         TERN_(DWIN_LCD_PROUI, DWIN_MeshUpdate(_MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS), current_position.z));
         SET_SOFT_ENDSTOP_LOOSE(false);
@@ -178,8 +182,8 @@ void GcodeSuite::G29() {
         // Disable software endstops to allow manual adjustment
         // If G29 is left hanging without completion they won't be re-enabled!
         SET_SOFT_ENDSTOP_LOOSE(true);
-        bedlevel.zigzag(mbl_probe_index++, ix, iy);
-        _manual_goto_xy({ bedlevel.index_to_xpos[ix], bedlevel.index_to_ypos[iy] });
+        mbl.zigzag(mbl_probe_index++, ix, iy);
+        _manual_goto_xy({ mbl.index_to_xpos[ix], mbl.index_to_ypos[iy] });
       }
       else {
         // Move to the after probing position
@@ -235,9 +239,9 @@ void GcodeSuite::G29() {
         return echo_not_entered('J');
 
       if (parser.seenval('Z')) {
-        bedlevel.z_values[ix][iy] = parser.value_linear_units();
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, bedlevel.z_values[ix][iy]));
-        TERN_(DWIN_LCD_PROUI, DWIN_MeshUpdate(ix, iy, bedlevel.z_values[ix][iy]));
+        mbl.z_values[ix][iy] = parser.value_linear_units();
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, mbl.z_values[ix][iy]));
+        TERN_(DWIN_LCD_PROUI, DWIN_MeshUpdate(ix, iy, mbl.z_values[ix][iy]));
       }
       else
         return echo_not_entered('Z');
@@ -245,7 +249,7 @@ void GcodeSuite::G29() {
 
     case MeshSetZOffset:
       if (parser.seenval('Z'))
-        bedlevel.z_offset = parser.value_linear_units();
+        mbl.z_offset = parser.value_linear_units();
       else
         return echo_not_entered('Z');
       break;
