@@ -160,8 +160,9 @@ void reset_bed_level() {
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("reset_bed_level");
   IF_DISABLED(AUTO_BED_LEVELING_UBL, set_bed_leveling_enabled(false));
   #if ENABLED(MIZAR_S_DUAL_LEVELING)
-    bedlevel.reset();  // Automatic bilinear mesh
-    mbl.reset();       // Independent manual mesh
+    // Reset only the selected calibration. ABL probing must not erase the MBL grid.
+    if (auto_manu_level_sel) bedlevel.reset();
+    else mbl.reset();
   #else
     TERN_(HAS_MESH, bedlevel.reset());
   #endif
