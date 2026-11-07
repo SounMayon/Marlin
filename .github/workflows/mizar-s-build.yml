@@ -28,6 +28,24 @@ jobs:
       - name: Build Geeetech Mizar S firmware
         run: pio run -e STM32F103VE_GTM32_maple
 
+      - name: Verify LVGL TFT assets
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          source = Path("Marlin/src/lcd/extui/mks_ui/pic_manager.cpp").read_text(encoding="utf-8")
+          assets_dir = Path(".pio/build/STM32F103VE_GTM32_maple/assets")
+          if not assets_dir.is_dir():
+              raise SystemExit(f"LVGL assets directory missing: {assets_dir}")
+          required = {name.casefold() for name in re.findall(r'F\\("([^\\"]+\\.bin)"\\)', source)}
+          available = {path.name.casefold() for path in assets_dir.iterdir() if path.is_file()}
+          missing = sorted(required - available)
+          if missing:
+              raise SystemExit("Missing LVGL assets: " + ", ".join(missing))
+          print(f"Validated {len(required)} LVGL assets in {assets_dir}")
+          PY
+
       - name: Upload build artifacts
         if: success()
         uses: actions/upload-artifact@v4
@@ -36,5 +54,6 @@ jobs:
           path: |
             .pio/build/STM32F103VE_GTM32_maple/firmware.bin
             .pio/build/STM32F103VE_GTM32_maple/firmware.elf
+            .pio/build/STM32F103VE_GTM32_maple/assets/
           if-no-files-found: error
           retention-days: 30
