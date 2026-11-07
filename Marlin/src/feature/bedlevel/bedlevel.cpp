@@ -25,6 +25,9 @@
 #if HAS_LEVELING
 
 #include "bedlevel.h"
+#if ENABLED(MIZAR_S_DUAL_LEVELING)
+  #include "../../lcd/extui/mks_ui/draw_ui.h"
+#endif
 #include "../../module/planner.h"
 
 #if ANY(MESH_BED_LEVELING, PROBE_MANUALLY)
@@ -53,6 +56,42 @@ bool leveling_is_valid() {
     return TERN1(HAS_MESH, bedlevel.mesh_is_valid());
   #endif
 }
+
+#if ENABLED(MIZAR_S_DUAL_LEVELING)
+
+  void leveling_data_backup(const bool automatic_mode) {
+    if (automatic_mode) {
+      gCfgItems.bk_abl_start_x = bedlevel.grid_start.x;
+      gCfgItems.bk_abl_start_y = bedlevel.grid_start.y;
+      gCfgItems.bk_abl_grid_x = bedlevel.grid_spacing.x;
+      gCfgItems.bk_abl_grid_y = bedlevel.grid_spacing.y;
+      GRID_LOOP(x, y) gCfgItems.bk_abl_z_values[x][y] = bedlevel.z_values[x][y];
+    }
+    else {
+      gCfgItems.bk_mbl_z_offset = mbl.z_offset;
+      GRID_LOOP(x, y) gCfgItems.bk_mbl_z_values[x][y] = mbl.z_values[x][y];
+    }
+  }
+
+  void leveling_data_restore(const bool automatic_mode) {
+    // Disable before restoring to prevent a live correction jump.
+    set_bed_leveling_enabled(false);
+    if (automatic_mode) {
+      bedlevel.set_grid(
+        { gCfgItems.bk_abl_grid_x, gCfgItems.bk_abl_grid_y },
+        { gCfgItems.bk_abl_start_x, gCfgItems.bk_abl_start_y }
+      );
+      GRID_LOOP(x, y) bedlevel.z_values[x][y] = gCfgItems.bk_abl_z_values[x][y];
+      bedlevel.refresh_bed_level();
+    }
+    else {
+      mbl.z_offset = gCfgItems.bk_mbl_z_offset;
+      GRID_LOOP(x, y) mbl.z_values[x][y] = gCfgItems.bk_mbl_z_values[x][y];
+    }
+  }
+
+#endif
+
 
 /**
  * Turn bed leveling on or off, correcting the current position.
