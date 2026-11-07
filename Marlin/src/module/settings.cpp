@@ -2054,8 +2054,9 @@ void MarlinSettings::postprocess() {
 
         #if ENABLED(MIZAR_S_DUAL_LEVELING)
           _FIELD_TEST(mizar_auto_level_selected);
-          const bool &mizar_auto_level_selected = auto_manu_level_sel;
+          bool mizar_auto_level_selected;
           EEPROM_READ(mizar_auto_level_selected);
+          auto_manu_level_sel = mizar_auto_level_selected;
         #endif
 
         #ifdef BLTOUCH_HS_MODE
