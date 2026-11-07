@@ -1,6 +1,6 @@
 # Geeetech Mizar S — suivi de portage Marlin 2.1.2.9
 
-Dernière mise à jour : 2026-11-07 (Europe/Paris)
+Dernière mise à jour : 2026-11-07 (Europe/Paris) — checkpoint dual-leveling
 
 ## Références figées
 
@@ -30,11 +30,28 @@ Le constructeur ne se contente pas de définir simultanément les deux macros. I
 
 C'est ce modèle qu'il faut porter, en adaptant les API au Marlin 2.1.2.9. Il ne faut pas enlever seulement le sanity check « select only one leveling option ».
 
+## Sauvegardes / jalons du portage (checkpoint 2026-11-07)
+
+Les changements suivants sont déjà committés sur la branche dédiée :
+
+- Base Mizar S : carte, géométrie, axes, BLTouch, écran MKS LVGL, stockage SD/EEPROM et premiers réglages de pause/PLR.
+- Création de `MIZAR_S_DUAL_LEVELING` et d'un sélecteur runtime `auto_manu_level_sel`.
+- Deux objets de maillage indépendants : `bedlevel` (ABL bilinéaire) et `mbl` (maillage manuel).
+- `planner.cpp` applique la correction de la grille sélectionnée.
+- `G29` et `M421` dispatchent vers des handlers spécifiques ABL ou MBL ; `G42` suit les coordonnées du maillage actif.
+- `M420` gère sélection, affichage et recentrage de la grille active.
+- `M500/M501` enregistrent/restaurent séparément la grille manuelle et le sélecteur de mode. `M502` réinitialise le mode vers ABL.
+- La version EEPROM de la configuration a été incrémentée de `V88` à `V89`, car le schéma de stockage a changé.
+
+**Conséquence au premier flash :** ne pas réutiliser aveuglément les anciens paramètres EEPROM. Charger les valeurs par défaut (`M502`), puis sauvegarder (`M500`) après vérification du démarrage et du comportement des axes. Les anciens décalages/profils peuvent devoir être restaurés manuellement à partir d'une sauvegarde préalable.
+
+Ces jalons sont sauvegardés dans l'historique Git de la branche. L'état de compilation reste non vérifié.
+
 ## État réel — non validé matériellement
 
 - La branche comporte un premier jeu de paramètres Mizar, mais ceux-ci sont encore préliminaires.
-- Le portage complet du moteur double MBL/ABL n'est pas fini.
-- Le parcours de stockage EEPROM des deux grilles est à réconcilier avec le format natif 2.1.2.9 ; le format EEPROM doit être revu/versionné et initialisé prudemment après flash.
+- Le noyau dual MBL/ABL (objets, planificateur, G29/M421/G42/M420 et persistance de base) est maintenant intégré statiquement, mais reste à compiler et à tester. L'interface LVGL guidée et les séquences de retour/annulation ne sont pas terminées.
+- Le parcours EEPROM utilise les zones natives MBL et ABL distinctes, plus un booléen de sélection ; le schéma est marqué V89 et nécessite M502/M500 au premier démarrage.
 - Le mapping runout doit être contrôlé avec les deux branches de pins (LVGL et non-LVGL) : l'écran tactile utilise PA4, donc PA4 ne doit jamais être affecté au capteur filament.
 - Le circuit de détection de perte secteur utilise PE3 dans la configuration LVGL de la carte. L'état électrique réel et les pull-up/pull-down doivent être validés sur carte.
 - La ressource TFT/LVGL et les langues françaises/anglaises ne sont pas encore réintégrées/validées.
@@ -43,8 +60,8 @@ C'est ce modèle qu'il faut porter, en adaptant les API au Marlin 2.1.2.9. Il ne
 
 ## Prochaine séquence
 
-1. Porter fidèlement l'architecture dual MBL/ABL du constructeur vers les API Marlin 2.1.2.9 : données séparées, correction planner, G29, M420/M421/G42, M500/M501.
-2. Auditer les appels à `auto_manu_level_sel`, fonctions sauvegarde/restauration et séquences LVGL.
+1. Terminer et adapter les écrans MKS LVGL de sélection auto/manuelle, d'ABL 4x4 et de MBL 4x4, y compris annulation/retour et valeurs sauvegardées.
+2. Vérifier toutes les références `auto_manu_level_sel` et les callbacks UI, puis tester l'interaction G29/M420/M421/G42 après compilation.
 3. Auditer le chemin d'exécution runout/pause et celui du PLR (PE3, SDIO, fichier recovery, arrêt et redémarrage).
 4. Migrer les fichiers UI/assets en respectant l'organisation 2.1.2.9 et ne garder que français/anglais.
 5. Vérifier le linker, l'environnement PlatformIO et la configuration de build STM32F103VET6.
