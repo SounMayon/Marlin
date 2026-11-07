@@ -246,10 +246,10 @@ typedef struct SettingsDataStruct {
   //
   // MESH_BED_LEVELING
   //
-  float mbl_z_offset;                                   // bedlevel.z_offset
+  float mbl_z_offset;                                   // mbl.z_offset
   uint8_t mesh_num_x, mesh_num_y;                       // GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y
   uint16_t mesh_check;                                  // Hash to check against X/Y
-  float mbl_z_values[TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_X, 3)]   // bedlevel.z_values
+  float mbl_z_values[TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_X, 3)]   // mbl.z_values
                     [TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_Y, 3)];
 
   //
@@ -1034,6 +1034,12 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(bltouch_od_5v_mode);
       const bool bltouch_od_5v_mode = TERN0(BLTOUCH, bltouch.od_5v_mode);
       EEPROM_WRITE(bltouch_od_5v_mode);
+
+      #if ENABLED(MIZAR_S_DUAL_LEVELING)
+        _FIELD_TEST(mizar_auto_level_selected);
+        const bool &mizar_auto_level_selected = auto_manu_level_sel;
+        EEPROM_WRITE(mizar_auto_level_selected);
+      #endif
 
       #ifdef BLTOUCH_HS_MODE
         _FIELD_TEST(bltouch_high_speed_mode);
@@ -2045,6 +2051,12 @@ void MarlinSettings::postprocess() {
           bool bltouch_od_5v_mode;
         #endif
         EEPROM_READ(bltouch_od_5v_mode);
+
+        #if ENABLED(MIZAR_S_DUAL_LEVELING)
+          _FIELD_TEST(mizar_auto_level_selected);
+          const bool &mizar_auto_level_selected = auto_manu_level_sel;
+          EEPROM_READ(mizar_auto_level_selected);
+        #endif
 
         #ifdef BLTOUCH_HS_MODE
           _FIELD_TEST(bltouch_high_speed_mode);
@@ -3121,6 +3133,9 @@ void MarlinSettings::reset() {
   //
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height = (DEFAULT_LEVELING_FADE_HEIGHT));
   TERN_(HAS_LEVELING, reset_bed_level());
+  #if ENABLED(MIZAR_S_DUAL_LEVELING)
+    auto_manu_level_sel = true;
+  #endif
 
   //
   // X Axis Twist Compensation
