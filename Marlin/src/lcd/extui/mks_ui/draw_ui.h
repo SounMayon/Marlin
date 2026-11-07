@@ -277,6 +277,9 @@ typedef struct UI_Config_Struct {
            filament_unloading_time_cnt;
   float move_dist;
   celsius_t hotendTargetTempBak;
+  #if ENABLED(MIZAR_S_DUAL_LEVELING)
+    celsius_t desireBedTempBak;
+  #endif
   float current_x_position_bak,
         current_y_position_bak,
         current_z_position_bak,
@@ -314,6 +317,10 @@ typedef enum {
   PRINT_MORE_UI,
   FILAMENTCHANGE_UI,
   LEVELING_UI,
+  #if ENABLED(MIZAR_S_DUAL_LEVELING)
+    AUTOLEVELING_UI,
+    AUTOLEVELING_MENU_UI,
+  #endif
   MESHLEVELING_UI,
   BIND_UI,
   OPTITEM(HAS_BED_PROBE, NOZZLE_PROBE_OFFSET_UI)
@@ -449,7 +456,8 @@ typedef enum {
 } keyboard_value_state;
 extern keyboard_value_state keyboard_value;
 
-#if ENABLED(MIZAR_S_DUAL_LEVELING)
+ #if ENABLED(MIZAR_S_DUAL_LEVELING)
+  extern bool lvgl_wait_for_move;
   typedef enum {
     leveling_start,
     leveling_heat,
