@@ -26,7 +26,7 @@ jobs:
         run: python -m pip install --upgrade pip platformio
 
       - name: Build Geeetech Mizar S firmware
-        run: pio run -e geeetech_lcd35
+        run: pio run -e STM32F103VE_GTM32_maple
 
       - name: Upload build artifacts
         if: success()
@@ -34,7 +34,7 @@ jobs:
         with:
           name: mizar-s-marlin-2.1.2.9
           path: |
-            .pio/build/geeetech_lcd35/firmware.bin
-            .pio/build/geeetech_lcd35/firmware.elf
+            .pio/build/STM32F103VE_GTM32_maple/firmware.bin
+            .pio/build/STM32F103VE_GTM32_maple/firmware.elf
           if-no-files-found: error
           retention-days: 30
