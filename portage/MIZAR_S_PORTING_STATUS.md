@@ -2,51 +2,65 @@
 
 Dernière mise à jour : 2026-11-07 (Europe/Paris)
 
-## Cible et limites
+## Révisions de l’audit
 
-- Base : MarlinFirmware/Marlin 2.1.2.9, commit 7d300b42acadb3e7467e9f4b4fc03ebea592c2d0.
-- Branche de travail : mizar-s-marlin-2.1.2.9.
-- Branche auditée avant ce checkpoint : 9221011910b22051f60bb60b6c92e84c9f467ccd.
-- Les branches main et bugfix-2.1.x n’ont pas été modifiées.
+- Dépôt constructeur : [Geeetech3D/Mizar-S, main, d3656d6db4bb89f552f9afd3aec013db02a1cff9](https://github.com/Geeetech3D/Mizar-S/tree/d3656d6db4bb89f552f9afd3aec013db02a1cff9), code Marlin 2.0.7.
+- Base Marlin du port : [tag 2.1.2.9, 7d300b42acadb3e7467e9f4b4fc03ebea592c2d0](https://github.com/MarlinFirmware/Marlin/tree/7d300b42acadb3e7467e9f4b4fc03ebea592c2d0).
+- Révision du port examinée : [mizar-s-marlin-2.1.2.9, d81c6016694c6b01754f524dde5e877e401e144f](https://github.com/SounMayon/Marlin/tree/d81c6016694c6b01754f524dde5e877e401e144f).
+- Marlin `main` examiné : [d58bae7e9aa4a11688af55aa4d3d94bb5df227c7](https://github.com/MarlinFirmware/Marlin/tree/d58bae7e9aa4a11688af55aa4d3d94bb5df227c7).
 
-## État de compilation vérifié
+Aucune modification n’a été faite sur `main` ni `bugfix-2.1.x`.
 
-Le workflow GitHub Actions « Mizar S Marlin 2.1.2.9 build » exécute `pio run -e STM32F103VE_GTM32_maple`.
+## Résultat de la comparaison Git
 
-- Run 42392936780, commit 58a006e4cef499c53757f1ed349218d530fe7479 : compilation réussie et artefact `firmware.bin` publié. Ce run a révélé un avertissement `z_raised` inutilisé.
-- Run 42393229867, commit bed50dfd5d9c2c5a2474cb254da7b9f81047cbad : compilation réussie après le garde conditionnel de `z_raised`; aucun avertissement du code Mizar n’apparaît.
-- Run 42393938496, commit a103fa05e476fe6e1721406ca40ef92f0e64bd04 : compilation réussie après l’audit/documentation.
-- Run 42394178471, commit 9221011910b22051f60bb60b6c92e84c9f467ccd : compilation réussie avec la correction qui termine la pause même si le runout arrive au début du fichier; `firmware.bin` a été créé et l’artefact a été publié.
-- Les avertissements restants concernent le framework Maple, l’environnement Maple déprécié et le segment ELF RWX. Aucun avertissement du code Mizar n’est relevé sur le dernier run.
-- Les compilations ont été exécutées par GitHub Actions. Elles ne valident ni le fonctionnement de l’écran, ni les capteurs, ni la reprise d’impression sur la machine.
+- La branche du port est **111 commits devant** le tag Marlin 2.1.2.9, **0 derrière**; le merge-base est exactement le tag. Elle comporte 43 chemins modifiés/ajoutés par rapport à ce tag.
+- Ces différences portent notamment sur la configuration et la carte GTM32, les deux maillages ABL/MBL, la reprise après perte secteur, les écrans MKS LVGL, le build CI et les notes de portage.
+- Le Marlin `main` courant est **divergent** du tag 2.1.2.9 : 4 533 commits d’avance, 3 495 de retard, merge-base `082fce5e3e68c7b8657201e5de5adba0e4f86a33`. L’API de comparaison ne retourne que 300 chemins pour cette comparaison.
+- Conflit concret de fusion : le port attribue l’identifiant de carte `5068` à `BOARD_GTM32_LCD35_A10`, libre dans sa base 2.1.2.9; Marlin `main` utilise maintenant `5068` pour `BOARD_MD_D301`. Le port doit rester fondé sur 2.1.2.9 tant qu’une migration dédiée ne réalloue pas cet identifiant et ne reprend pas ses modifications une par une.
+- Le README constructeur indique que son code Marlin 2.0.7 est destiné à l’écran Mizar S d’origine. Le port est donc une adaptation à Marlin 2.1.2.9, pas une copie fichier à fichier.
 
-## Travail déjà intégré
+## Configuration et carte comparées
 
-- Carte GTM32/Mizar S et environnement STM32F103VE_GTM32_maple, avec script de relocation bootloader.
-- Dual leveling ABL/MBL : objets et grilles distincts, sélection runtime, routage G-code, planificateur et persistance EEPROM V89.
-- M421 MBL lit les index en 32 bits puis les valide avant l’accès au maillage.
-- Écrans LVGL auto et manuel 4×4, sélection de mode, sauvegarde/restauration des deux maillages. Revue statique des chemins d’arrêt et retour : l’ABL restaure le maillage précédent après l’abandon; le MBL annule en restaurant sa copie et sauvegarde le maillage terminé.
-- Le code de nivellement automatique vérifie le drapeau d’arrêt avant chaque nouveau point de sonde; un arrêt n’interrompt donc pas un mouvement de sonde déjà engagé.
-- La persistance EEPROM V89 conserve le mode sélectionné et les données ABL/MBL; le build courant valide la configuration cible.
+La configuration 2.1.2.9 conserve les réglages machine du profil constructeur examinés dans `Configuration.h` : carte A10, volume 255×255×260 mm, capteurs thermiques 1/1, pas par unité `{80, 80, 400, 420}`, ABL bilinéaire et MBL avec sauvegarde EEPROM. Le numéro de carte change de 4038 dans la base 2.0.7 constructeur à 5068 dans le port 2.1.2.9.
 
-## Runout, PLR et ressources
+Les broches clés sont conservées dans la carte dédiée : sonde Z PC4; capteur runout LVGL PA15, actif-bas avec pull-up; entrée de détection de perte secteur PE3, active-bas. En variante sans LVGL, PA4 apparaît à la fois pour le runout et pour le tactile; cette variante est signalée comme inutilisable sans correction.
 
-- Configuration LVGL : `MT_DET_1_PIN` et `FIL_RUNOUT_PIN` partagent PA15; le capteur Marlin natif reste désactivé pour éviter le double déclenchement. Le handler MKS échantillonne le signal actif-bas, lance une pause SD et le polling attend la fin du mouvement avant de parquer la tête; la correction du seuil d’index SD (run 42394178471) évite un blocage si le runout arrive au début du fichier. La reprise restaure XY/Z puis relance M24.
-- Ce chemin ne lance pas automatiquement M600, une purge ou un chargement; le geste de réinsertion/reprise est manuel depuis l’écran. La polarité et le comportement électrique restent à tester sur la carte.
-- Variante sans LVGL : le pin de runout est PA4, également déclaré pour TOUCH_CS dans la définition de carte; ne pas utiliser cette variante sans résoudre cette affectation.
-- PLR est activé avec entrée PE3 active-bas, sans pull-up/pull-down interne configuré tant que le circuit de détection n’est pas confirmé. Les données de reprise sont stockées après SettingsData avec contrôle CRC et vérification de taille; la séquence complète coupure/redémarrage/SD/reprise n’a pas été essayée.
-- Les 120 noms d’images `.bin` du gestionnaire MKS ont tous un JPG de même nom de base dans `SounMayon/Mizar-S/Resource/icon` (révision examinée : `d3656d6db4bb89f552f9afd3aec013db02a1cff9`). Le dépôt firmware ne contient pas les binaires TFT; le convertisseur constructeur indique que sa sortie `.bin` n’a pas été éprouvée. Détails et blocage dans `portage/mizar-s/TFT_ASSETS.md`.
-- Les chaînes de nivellement spécifiques sont fournies en français/anglais et la configuration Mizar normalise les langues vers ces deux choix.
-- Aucun essai matériel de runout, perte secteur, migration EEPROM, affichage des icônes ou impression n’est disponible.
+Le script et le linker du port reprennent l’adresse constructeur `0x08007000`, le décalage bootloader de 28 Kio et la réserve flash EEPROM de 4 Kio. Leur compilation est vérifiée, mais le contenu du bootloader et le câblage réel n’ont pas été contrôlés sur la machine.
 
-## À terminer
+## Compilation CI vérifiée
 
-1. Convertir les 120 JPG en images MKS `.bin` avec un format vérifié, intégrer le paquet TFT et contrôler l’affichage de toutes les icônes.
-2. Tester sur carte le runout actif-bas, la réinsertion, l’action manuelle de chargement/purge et la reprise du fichier.
-3. Tester ABL et MBL sur l’écran : démarrage, arrêt, annulation, fin, retour et activation du bon maillage.
-4. Tester PE3 et toute la reprise PLR (sauvegarde EEPROM, coupure, détection, fichier SD, reprise et effacement).
-5. Documenter la procédure de flash et de migration EEPROM, puis effectuer les validations sur banc et imprimante.
+Le workflow GitHub Actions exécute `pio run -e STM32F103VE_GTM32_maple`.
 
-## Règle de livraison
+- Run [42394435321](https://github.com/SounMayon/Marlin/actions/runs/42394435321), commit `d81c6016694c6b01754f524dde5e877e401e144f) : **succès**.
+- L’artefact `mizar-s-marlin-2.1.2.9` a été publié; il contient `firmware.bin`.
+- Ce résultat confirme la compilation CI de cette révision. Il ne valide ni le démarrage sur la carte réelle, ni l’écran, ni les capteurs, ni une impression.
 
-Ne pas présenter le firmware comme prêt à flasher ou validé matériellement sans build réussi, revue statique des chemins concernés et essais réels de la carte.
+## Nivellement ABL/MBL
+
+La sélection Mizar conserve deux jeux de données distincts : maillage ABL bilinéaire et grille MBL manuelle 4×4. Les G-code, le planificateur et l’EEPROM choisissent le bon jeu selon le mode. Les parcours d’annulation/restauration et d’arrêt de l’ABL ont été relus statiquement. L’ABL s’arrête avant le point de mesure suivant; une mesure déjà engagée n’est pas interrompue.
+
+Le MBL est sauvegardé après la séquence guidée; l’annulation restaure sa copie. Ces chemins n’ont pas été essayés sur l’écran ou la machine.
+
+## Runout, reprise secteur et langues
+
+- **Runout :** le MKS UI lit PA15 en actif-bas, avec pull-up et filtrage logiciel. Il met en pause le fichier SD, attend la fin des mouvements, parque la tête puis permet une reprise manuelle. La correction du seuil de position couvre un runout au tout début du fichier. Ce chemin ne déclenche pas M600, purge ou chargement automatique. Polarité et séquence de reprise restent à essayer sur la carte.
+- **Perte secteur :** PLR activé sur PE3 actif-bas, stockage EEPROM séparé avec CRC et stockage de la position Z physique. Aucun biais interne n’est activé tant que le circuit n’est pas confirmé. La séquence coupure, redémarrage, détection, restauration SD et reprise n’a pas été testée.
+- **Langues :** le code limite le choix à français/anglais et contient les chaînes de nivellement correspondantes. Les images nécessaires à l’écran de choix ne sont pas complètes dans les ressources GitHub du constructeur; voir [TFT_ASSETS.md](mizar-s/TFT_ASSETS.md).
+
+### Correction du comptage d’images
+
+Une note précédente indiquait que les 120 noms d’images du port correspondaient tous aux JPG de `SounMayon/Mizar-S`. C’était inexact : le dépôt de ce fork est à la même révision source que Geeetech et ne contient que les 107 images constructeur. Le gestionnaire MKS du port demande 120 images distinctes; 61 ont un JPG constructeur homonyme et 59 n’en ont pas. Le dépôt du port ne contient pas le paquet TFT `assets/` ni les binaires d’icônes. Le [README Geeetech](https://github.com/Geeetech3D/Mizar-S/blob/d3656d6db4bb89f552f9afd3aec013db02a1cff9/README.md) documente la conversion `Bin_565`; la procédure Wiki demande le binaire firmware et le dossier `assets` à la racine TF, puis de refaire le nivellement.
+
+Le lien Support `download_id=57` et le Pastebin indiqués n’étaient pas accessibles pendant l’audit; leur contenu n’est pas confirmé. Aucun essai matériel n’est disponible pour l’écran, le runout, la perte secteur, la migration EEPROM ou l’impression.
+
+## État et travaux restant avant validation complète
+
+**État : compilation CI réussie; port logiciel non validé matériellement et ressources TFT incomplètes. Ne pas le présenter comme un firmware prêt à flasher/validé sur Mizar S.**
+
+1. Obtenir et inspecter le paquet constructeur `assets/`; satisfaire les 120 références du port, convertir en Bin_565 et contrôler les noms/dimensions.
+2. Vérifier sur l’écran la mise à jour TFT, les icônes, le choix français/anglais et les pages ABL/MBL.
+3. Essayer ABL et MBL : entrée, arrêt, annulation, fin, activation et persistance des deux maillages.
+4. Vérifier le runout PA15 actif-bas, la pause en début de fichier et la reprise manuelle.
+5. Vérifier PE3 et une reprise complète après perte secteur avec impression depuis SD.
+6. Documenter la procédure de flash et de migration EEPROM, puis valider l’ensemble sur banc et imprimante.
+
