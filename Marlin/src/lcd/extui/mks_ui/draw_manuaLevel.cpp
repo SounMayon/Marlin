@@ -119,7 +119,7 @@ static void draw_current_zoffset(bool only_disp)
 		else if (z < -LCD_PROBE_Z_RANGE / 2)
 			z = -LCD_PROBE_Z_RANGE / 2;
 		current_position.z = constrain(z, -(LCD_PROBE_Z_RANGE)*0.5f, (LCD_PROBE_Z_RANGE)*0.5f);
-		line_to_current_position(manual_feedrate_mm_s.z);
+		line_to_current_position(feedrate_mm_s);
 		feedrate_mm_s = 30.0; //return movespeed
 	}
 
@@ -408,7 +408,7 @@ void lv_draw_manualLevel(void)
 	level_point_info = lv_label_create_empty(scr);
 	lv_label_set_long_mode(level_point_info, LV_LABEL_LONG_BREAK);
 	lv_obj_set_size(level_point_info, 250, 0);
-	lv_obj_set_style(level_point_info, &style_yellow_label);
+	lv_obj_set_style(level_point_info, &style_sel_text);
 	lv_label_set_align(level_point_info, LV_LABEL_ALIGN_CENTER);
 	lv_obj_align(level_point_info, NULL, LV_ALIGN_IN_TOP_MID, 0, 40);
 	lv_label_set_text(level_point_info, mizar_leveling_text(MIZAR_TEXT_LEVEL_HOME));
