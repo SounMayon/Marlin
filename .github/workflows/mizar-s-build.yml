@@ -31,14 +31,19 @@ jobs:
       - name: Verify LVGL TFT assets
         run: |
           python - <<'PY'
-          import re
           from pathlib import Path
 
           source = Path("Marlin/src/lcd/extui/mks_ui/pic_manager.cpp").read_text(encoding="utf-8")
           assets_dir = Path(".pio/build/STM32F103VE_GTM32_maple/assets")
           if not assets_dir.is_dir():
               raise SystemExit(f"LVGL assets directory missing: {assets_dir}")
-          required = {name.casefold() for name in re.findall(r'F\\("([^\\"]+\\.bin)"\\)', source)}
+          required = set()
+          for line in source.splitlines():
+              line = line.strip()
+              if line.startswith('F("'):
+                  name = line.split('"')[1]
+                  if name.casefold().endswith(".bin"):
+                      required.add(name.casefold())
           available = {path.name.casefold() for path in assets_dir.iterdir() if path.is_file()}
           missing = sorted(required - available)
           if missing:
