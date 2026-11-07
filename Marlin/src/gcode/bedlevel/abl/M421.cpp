@@ -47,6 +47,12 @@
  *  - If both I and J are omitted, set all
  */
 void GcodeSuite::M421() {
+  #if ENABLED(MIZAR_S_DUAL_LEVELING)
+    if (!auto_manu_level_sel) {
+      M421_MBL();
+      return;
+    }
+  #endif
   int8_t ix = parser.intval('I', -1), iy = parser.intval('J', -1);
   const bool hasZ = parser.seenval('Z'),
              hasQ = !hasZ && parser.seenval('Q');
