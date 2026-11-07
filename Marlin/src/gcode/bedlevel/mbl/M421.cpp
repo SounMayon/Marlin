@@ -54,7 +54,7 @@
 
   if (int(hasI && hasJ) + int(hasX && hasY) != 1 || !(hasZ || hasQ))
     SERIAL_ERROR_MSG(STR_ERR_M421_PARAMETERS);
-  else if (ix < 0 || iy < 0)
+  else if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1))
     SERIAL_ERROR_MSG(STR_ERR_MESH_XY);
   else
     mbl.set_z(ix, iy, parser.value_linear_units() + (hasQ ? mbl.z_values[ix][iy] : 0));

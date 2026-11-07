@@ -1,6 +1,6 @@
 # Geeetech Mizar S — suivi de portage Marlin 2.1.2.9
 
-Dernière mise à jour : 2026-11-07 (Europe/Paris) — checkpoint dual-leveling
+Dernière mise à jour : 2026-11-07 (Europe/Paris) — audit statique MBL et checkpoint
 
 ## Références figées
 
@@ -16,7 +16,7 @@ Dernière mise à jour : 2026-11-07 (Europe/Paris) — checkpoint dual-leveling
 - `46520a3` — affectation PA15 au capteur filament natif (à contrôler avec la sélection de l'écran MKS).
 - `b636a8a` — activation du second pilote Z.
 
-Chaque modification de fichier a été enregistrée par un commit GitHub. Ce journal doit être actualisé après chaque grand bloc fonctionnel.
+La tête de branche auditée avant ce checkpoint était `4496ce40b0e9d11ade3f550dee3e0dfe281def5e` (commit parent direct `b63101db4055287985f2661ebf92652cb5dd2079`). Les avancées dual-leveling et PLR détaillées ci-dessous sont présentes dans l'historique. Ce journal est actualisé à chaque checkpoint.
 
 ## Architecture de nivellement retrouvée dans le firmware Geeetech
 
@@ -54,6 +54,7 @@ Les changements suivants sont déjà committés sur la branche dédiée :
 - `G29` et `M421` dispatchent vers des handlers spécifiques ABL ou MBL ; `G42` suit les coordonnées du maillage actif.
 - `M420` gère sélection, affichage et recentrage de la grille active.
 - `M500/M501` enregistrent/restaurent séparément la grille manuelle et le sélecteur de mode. `M502` réinitialise le mode vers ABL.
+- Audit de `M421_MBL` : ajout du contrôle des bornes `I/J` avant indexation de la grille. Les indices hors plage sont maintenant rejetés avec `STR_ERR_MESH_XY`, comme pour la grille ABL.
 - La version EEPROM de la configuration a été incrémentée de `V88` à `V89`, car le schéma de stockage a changé.
 
 **Conséquence au premier flash :** ne pas réutiliser aveuglément les anciens paramètres EEPROM. Charger les valeurs par défaut (`M502`), puis sauvegarder (`M500`) après vérification du démarrage et du comportement des axes. Les anciens décalages/profils peuvent devoir être restaurés manuellement à partir d'une sauvegarde préalable.
@@ -71,14 +72,21 @@ Ces jalons sont sauvegardés dans l'historique Git de la branche. L'état de com
 - Les options de pause/runout et la reprise PLR ont été activées en première passe seulement ; leurs séquences doivent être auditées avant d'être déclarées correctes.
 - Aucune compilation PlatformIO ni aucun essai imprimante n'a été exécuté depuis cette session. Les actions de compilation/flash et les essais physiques resteront à effectuer sur PC/imprimante.
 
+## Checkpoint courant — 2026-11-07
+
+- Branche distante vérifiée : `mizar-s-marlin-2.1.2.9`, tête `4496ce40b0e9d11ade3f550dee3e0dfe281def5e` avant ce commit. Aucun changement demandé ou appliqué à `main` ni à `bugfix-2.1.x`.
+- Correction statique ciblée : `M421_MBL` vérifie désormais `I` et `J` contre `GRID_MAX_POINTS_X/Y` avant l'accès à `mbl.z_values`; les indices négatifs et trop grands sont refusés. Le contenu précédent pouvait indexer hors limites avec des indices positifs excessifs.
+- Les fichiers des écrans LVGL automatiques/manuels et les en-têtes de langues EN/FR sont déjà présents dans la branche. Leur parcours complet, l'association des chaînes de texte et les ressources binaires restent à auditer; leur présence seule ne prouve pas que les workflows ni les assets sont intégrés correctement.
+- CI : un workflow Mizar dédié existe; aucune compilation n'a été exécutée ou confirmée pendant cet audit. L'état C++/link reste donc non vérifié.
+- Runout, reprise après coupure, PLR et comportement des callbacks LVGL restent non validés statiquement de bout en bout et matériellement.
+
 ## Prochaine séquence
 
-1. Terminer et adapter les écrans MKS LVGL de sélection auto/manuelle, d'ABL 4x4 et de MBL 4x4, y compris annulation/retour et valeurs sauvegardées.
-2. Vérifier toutes les références `auto_manu_level_sel` et les callbacks UI, puis tester l'interaction G29/M420/M421/G42 après compilation.
-3. Auditer le chemin d'exécution runout/pause et celui du PLR (PE3, SDIO, fichier recovery, arrêt et redémarrage).
-4. Migrer les fichiers UI/assets en respectant l'organisation 2.1.2.9 et ne garder que français/anglais.
-5. Vérifier le linker, l'environnement PlatformIO et la configuration de build STM32F103VET6.
-6. Ajouter une procédure de compilation, de flash, de sauvegarde EEPROM et un protocole de validation sur banc.
+1. Auditer les transitions/callbacks entre sélection ABL/MBL, écrans 4x4, retour et arrêt, puis corriger une séquence à la fois.
+2. Auditer le runout avec pause/reprise d'impression, puis le parcours PLR et les interactions SD/EEPROM.
+3. Vérifier quelles ressources MKS requises existent dans 2.1.2.9 et intégrer les assets/langues effectivement nécessaires.
+4. Examiner les résultats du workflow CI et corriger les erreurs de compilation jusqu'à obtenir une build démontrée.
+5. Documenter les commandes de build/flash, procédure EEPROM et validation sur banc; obtenir les essais matériels avant toute déclaration de validation.
 
 ## Règle de livraison
 
