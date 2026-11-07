@@ -37,6 +37,10 @@
 #include "../../../lcd/marlinui.h"
 #include "../../../module/motion.h"
 #include "../../../module/planner.h"
+#if ENABLED(MIZAR_S_DUAL_LEVELING)
+  #include "../../../lcd/extui/mks_ui/draw_ui.h"
+  #include "../../../module/settings.h"
+#endif
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
@@ -107,51 +111,36 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
     case MeshStart:
       mbl.reset();
       mbl_probe_index = 0;
-      if (!ui.wait_for_move) {
-        if (parser.seen_test('N'))
-          queue.inject(F("G28" TERN_(CAN_SET_LEVELING_AFTER_G28, "L0")));
+      #if ENABLED(MIZAR_S_DUAL_LEVELING)
+        if (!lvgl_wait_for_move) {
+          if (parser.seen_test('N')) queue.inject(F("G28" TERN_(CAN_SET_LEVELING_AFTER_G28, "L0")));
+          queue.inject(F("G28\\nG29 S2"));
+          return;
+        }
+      #else
+        if (!ui.wait_for_move) {
+          if (parser.seen_test('N'))
+            queue.inject(F("G28" TERN_(CAN_SET_LEVELING_AFTER_G28, "L0")));
 
-        // Position bed horizontally and Z probe vertically.
-        #if HAS_SAFE_BED_LEVELING
-          xyze_pos_t safe_position = current_position;
-          #ifdef SAFE_BED_LEVELING_START_X
-            safe_position.x = SAFE_BED_LEVELING_START_X;
+          #if HAS_SAFE_BED_LEVELING
+            xyze_pos_t safe_position = current_position;
+            #ifdef SAFE_BED_LEVELING_START_X
+              safe_position.x = SAFE_BED_LEVELING_START_X;
+            #endif
+            #ifdef SAFE_BED_LEVELING_START_Y
+              safe_position.y = SAFE_BED_LEVELING_START_Y;
+            #endif
+            #ifdef SAFE_BED_LEVELING_START_Z
+              safe_position.z = SAFE_BED_LEVELING_START_Z;
+            #endif
+            do_blocking_move_to(safe_position);
           #endif
-          #ifdef SAFE_BED_LEVELING_START_Y
-            safe_position.y = SAFE_BED_LEVELING_START_Y;
-          #endif
-          #ifdef SAFE_BED_LEVELING_START_Z
-            safe_position.z = SAFE_BED_LEVELING_START_Z;
-          #endif
-          #ifdef SAFE_BED_LEVELING_START_I
-            safe_position.i = SAFE_BED_LEVELING_START_I;
-          #endif
-          #ifdef SAFE_BED_LEVELING_START_J
-            safe_position.j = SAFE_BED_LEVELING_START_J;
-          #endif
-          #ifdef SAFE_BED_LEVELING_START_K
-            safe_position.k = SAFE_BED_LEVELING_START_K;
-          #endif
-          #ifdef SAFE_BED_LEVELING_START_U
-            safe_position.u = SAFE_BED_LEVELING_START_U;
-          #endif
-          #ifdef SAFE_BED_LEVELING_START_V
-            safe_position.v = SAFE_BED_LEVELING_START_V;
-          #endif
-          #ifdef SAFE_BED_LEVELING_START_W
-            safe_position.w = SAFE_BED_LEVELING_START_W;
-          #endif
-
-          do_blocking_move_to(safe_position);
-        #endif // HAS_SAFE_BED_LEVELING
-
-        queue.inject(F("G29S2"));
-
-        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
-        TERN_(DWIN_LCD_PROUI, DWIN_LevelingStart());
-
-        return;
-      }
+          queue.inject(F("G29S2"));
+          TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
+          TERN_(DWIN_LCD_PROUI, DWIN_LevelingStart());
+          return;
+        }
+      #endif
       state = MeshNext;
 
     case MeshNext:
@@ -184,6 +173,9 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
         SET_SOFT_ENDSTOP_LOOSE(true);
         mbl.zigzag(mbl_probe_index++, ix, iy);
         _manual_goto_xy({ mbl.index_to_xpos[ix], mbl.index_to_ypos[iy] });
+        #if ENABLED(MIZAR_S_DUAL_LEVELING)
+          lvgl_wait_for_move = false; // The MKS page may now accept the Z adjustment.
+        #endif
       }
       else {
         // Move to the after probing position
@@ -203,8 +195,16 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
         TERN_(HAS_STATUS_MESSAGE, LCD_MESSAGE(MSG_MESH_DONE));
         OKAY_BUZZ();
 
-        home_all_axes();
-        set_bed_leveling_enabled(true);
+        #if ENABLED(MIZAR_S_DUAL_LEVELING)
+          // The LVGL guided workflow queues G28 after this final G29 S2.
+          set_bed_leveling_enabled(true);
+          leveling_data_backup(false);
+          settings.save();
+          lvgl_wait_for_move = false;
+        #else
+          home_all_axes();
+          set_bed_leveling_enabled(true);
+        #endif
 
         #if ENABLED(MESH_G28_REST_ORIGIN)
           current_position.z = 0;
