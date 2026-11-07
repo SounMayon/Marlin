@@ -55,3 +55,33 @@ Aucune branche existante (`main` ou `bugfix-2.1.x`) n'a été modifiée. Cette b
 ## Règle de validation
 
 Chaque adaptation sera associée à ses sources d'origine, à la justification de portage et à une vérification statique. Aucune compilation locale, aucun test électrique et aucun essai sur imprimante ne seront déclarés réussis sans exécution effective. La validation finale nécessitera la compilation sur le poste utilisateur puis des essais contrôlés sur la machine.
+
+## Avancement GitHub — première intégration carte
+
+Commit de base conservé dans l'historique de la branche. Les premiers fichiers d'intégration ont été ajoutés :
+
+- `Marlin/src/pins/stm32f1/pins_GTM32_LCD35_A10.h` : définition de broches constructeur importée et identifiée Mizar S.
+- `Marlin/src/core/boards.h` : identifiant Marlin cible `BOARD_GTM32_LCD35_A10 = 5068`.
+- `Marlin/src/pins/pins.h` : sélection du fichier de broches pour cette carte.
+- `ini/stm32f1.ini` : environnement `geeetech_lcd35` ajouté en s'appuyant sur la base STM32F103VE avec offset applicatif 0x7000 et timer servo TIM1, cohérent avec PA8 du BLTouch.
+
+**Pourquoi 5068 et pas 4038 :** le code constructeur Marlin 2.0.7.2 utilise l'ID 4038. Dans le tag 2.1.2.9, la plage 5000+ est utilisée pour les cartes STM32F1 et 5038 est déjà attribué à Chitu3D V9. Le premier ID libre immédiatement après les identifiants existants 5067 est 5068. Le nom symbolique reste `BOARD_GTM32_LCD35_A10`.
+
+## Réglages machine relevés dans la configuration constructeur
+
+- `SERIAL_PORT 1`, `BAUDRATE 250000`.
+- `X_BED_SIZE 255`, `Y_BED_SIZE 255`, `Z_MAX_POS 260`.
+- BLTouch activé, `NOZZLE_TO_PROBE_OFFSET { 0.0, 0.0, 0.20 }`.
+- ABL bilinéaire 4 x 4 et MBL sont tous deux activés dans la configuration constructeur.
+- EEPROM activée et SD support activé.
+- `TFT_LVGL_UI` est activé dans la configuration constructeur.
+- Deux moteurs Z et second Z utilisant l'endstop Z_MAX.
+- PLR activé avec stockage EEPROM et stockage de la valeur Z.
+
+Attention : la configuration source commente `FILAMENT_RUNOUT_SENSOR` alors que le firmware installé a présenté un comportement de runout en utilisation réelle. L'interface MKS possède son propre chemin `MT_DET_1_PIN`; ce chemin doit être intégré et réconcilié avec le runout natif Marlin 2.1.2.9, sans activer arbitrairement le mauvais pin ou la mauvaise polarité.
+
+## Compatibilité écran
+
+Marlin 2.1.2.9 contient déjà une implémentation MKS LVGL sous `Marlin/src/lcd/extui/mks_ui`, alors que le code Geeetech 2.0.7.2 est sous `Marlin/src/lcd/extui/lib/mks_ui`. Il ne faut donc pas écraser la version cible avec l'ancien répertoire. Le travail doit porter sur les extensions Mizar spécifiques (sélection des deux nivellements, commandes de l'écran, reprise runout/PLR, textes et ressources manquantes) après comparaison fichier par fichier.
+
+Le linker `geeetech_lcd35.ld` du constructeur et `mks_robin_nano.ld` de Marlin 2.1.2.9 ont le même contenu observé, avec origine ROM `0x08007000`. L'environnement cible hérite donc de la configuration de base STM32F103VE à offset `0x7000`; le script custom du constructeur n'a pas été copié à ce stade.
