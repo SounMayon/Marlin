@@ -18,7 +18,7 @@ Le workflow GitHub Actions Mizar S Marlin 2.1.2.9 build exécute pio run -e STM3
 - Run 42391546130, commit 83da497d40881ffc358fad2f91cde9777d51a2c5 : échec dans le dialogue de pause, symboles optionnels absents.
 - Run 42391772326, commit ccc022b013af2a1c2a2451a647d3c6c68d22319c : échec sur manual_feedrate_mm_s et un style jaune absent.
 - Run 42391981474, commit c48792b6b82b4952561b6d4292234c8200a6ed5a : la vitesse Z et le premier style compilent; le second usage de style_yellow_label reste en erreur. Le présent checkpoint le remplace par le style disponible dans Marlin.
-- Aucune compilation réussie n’est encore démontrée. Le résultat CI du présent checkpoint doit être examiné avant de déclarer le build correct.
+- Aucune compilation réussie n’est encore démontrée. Il faut examiner le résultat du workflow déclenché par le présent checkpoint.
 
 ## Travail déjà intégré
 
