@@ -122,10 +122,11 @@ public:
   #endif
 };
 
-extern mesh_bed_leveling bedlevel; // Standard MBL-only builds
 #if ENABLED(MIZAR_S_DUAL_LEVELING)
   extern mesh_bed_leveling mbl;
   #define MBL_Z_VALUES_ARR mbl.z_values
   #define _MBL_GET_MESH_X(I) mbl.get_mesh_x(I)
   #define _MBL_GET_MESH_Y(J) mbl.get_mesh_y(J)
+#else
+  extern mesh_bed_leveling bedlevel; // Standard MBL-only builds
 #endif
