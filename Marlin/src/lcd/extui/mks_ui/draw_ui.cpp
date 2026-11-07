@@ -58,6 +58,9 @@
 
 CFG_ITMES gCfgItems;
 UI_CFG uiCfg;
+#if ENABLED(MIZAR_S_DUAL_LEVELING)
+  bool lvgl_wait_for_move = false;
+#endif
 DISP_STATE_STACK disp_state_stack;
 DISP_STATE disp_state = MAIN_UI;
 DISP_STATE last_disp_state;
@@ -814,6 +817,20 @@ void GUI_RefreshPage() {
       filament_dialog_handle();
       TERN_(MKS_WIFI_MODULE, wifi_scan_handle());
       break;
+    #if ENABLED(MIZAR_S_DUAL_LEVELING)
+      case LEVELING_UI:
+        if (temps_update_flag) {
+          temps_update_flag = false;
+          lv_flash_manual_level();
+        }
+        break;
+      case AUTOLEVELING_UI:
+        if (temps_update_flag) {
+          temps_update_flag = false;
+          lv_flash_auto_level();
+        }
+        break;
+    #endif
     case MESHLEVELING_UI: break;
     case HARDWARE_TEST_UI: break;
     case WIFI_LIST_UI:
@@ -919,7 +936,17 @@ void clear_cur_ui() {
     case FILETRANSFERSTATE_UI:        break;
     case PRINT_MORE_UI:               break;
     case FILAMENTCHANGE_UI:           lv_clear_filament_change(); break;
-    case LEVELING_UI:                 lv_clear_manualLevel(); break;
+    case LEVELING_UI:
+      #if ENABLED(MIZAR_S_DUAL_LEVELING)
+        lv_clear_manualLevel();
+      #else
+        lv_clear_manualLevel();
+      #endif
+      break;
+    #if ENABLED(MIZAR_S_DUAL_LEVELING)
+      case AUTOLEVELING_UI:             lv_clear_auto_level(); break;
+      case AUTOLEVELING_MENU_UI:        lv_clear_autolevel_menu(); break;
+    #endif
     #if ENABLED(MKS_WIFI_MODULE)
       case BIND_UI:                   lv_clear_cloud_bind(); break;
     #endif
@@ -1029,6 +1056,10 @@ void draw_return_ui() {
       case PRINT_MORE_UI:               lv_draw_more(); break;
       case FILAMENTCHANGE_UI:           lv_draw_filament_change(); break;
       case LEVELING_UI:                 lv_draw_manualLevel(); break;
+      #if ENABLED(MIZAR_S_DUAL_LEVELING)
+        case AUTOLEVELING_UI:            lv_draw_auto_level(); break;
+        case AUTOLEVELING_MENU_UI:       lv_draw_autolevel_menu(); break;
+      #endif
       #if ENABLED(MKS_WIFI_MODULE)
         case BIND_UI:                   lv_draw_cloud_bind(); break;
       #endif
