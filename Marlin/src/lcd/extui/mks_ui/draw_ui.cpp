@@ -134,11 +134,7 @@ lv_point_t line_points[4][2] = {
 };
 void gCfgItems_init() {
   gCfgItems.multiple_language = MULTI_LANGUAGE_ENABLE;
-  #if LCD_LANGUAGE == fr
-    gCfgItems.language = LANG_FRENCH;
-  #else
-    gCfgItems.language = LANG_ENGLISH;
-  #endif
+  gCfgItems.language = LANG_FRENCH;
   gCfgItems.leveling_mode     = 0;
   gCfgItems.from_flash_pic    = false;
   gCfgItems.curFilesize       = 0;
@@ -187,11 +183,7 @@ void gCfgItems_init() {
   // This firmware exposes only English and French. Clamp legacy SPI-flash
   // settings from older multilingual builds to the configured default.
   if (gCfgItems.language != LANG_ENGLISH && gCfgItems.language != LANG_FRENCH) {
-    #if LCD_LANGUAGE == fr
-      gCfgItems.language = LANG_FRENCH;
-    #else
-      gCfgItems.language = LANG_ENGLISH;
-    #endif
+    gCfgItems.language = LANG_FRENCH;
     update_spi_flash();
   }
 
