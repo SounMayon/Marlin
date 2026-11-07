@@ -302,7 +302,7 @@ void lv_draw_manualLevel(void)
 	lv_scr_load(scr);
 	lv_obj_clean(scr);
 
-	lv_obj_t *title = lv_label_create(scr, NULL);
+	lv_obj_t *title = lv_label_create_empty(scr);
 	lv_obj_set_style(title, &tft_style_label_rel);
 	lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
 	lv_label_set_text(title, creat_title_text());
@@ -358,11 +358,11 @@ void lv_draw_manualLevel(void)
 	lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 	lv_btn_set_layout(buttonStep, LV_LAYOUT_OFF);
 
-	lv_obj_t *labelAdd = lv_label_create(buttonAdd, NULL);
-	lv_obj_t *labelDec = lv_label_create(buttonDec, NULL);
-	lv_obj_t *labelCfm = lv_label_create(buttonCfm, NULL);
-	lv_obj_t *labelBack = lv_label_create(buttonBack, NULL);
-	labelStep = lv_label_create(buttonStep, NULL);
+	lv_obj_t *labelAdd = lv_label_create_empty(buttonAdd);
+	lv_obj_t *labelDec = lv_label_create_empty(buttonDec);
+	lv_obj_t *labelCfm = lv_label_create_empty(buttonCfm);
+	lv_obj_t *labelBack = lv_label_create_empty(buttonBack);
+	labelStep = lv_label_create_empty(buttonStep);
 
 	if (gCfgItems.multiple_language != 0)
 	{
@@ -389,7 +389,7 @@ void lv_draw_manualLevel(void)
 		lv_group_add_obj(g, buttonStep);
 	}
 #endif
-	labExtraTemp = lv_label_create(scr, NULL);
+	labExtraTemp = lv_label_create_empty(scr);
 	lv_label_set_long_mode(labExtraTemp, LV_LABEL_LONG_BREAK);
 	lv_obj_set_style(labExtraTemp, &tft_style_label_rel);
 	lv_obj_set_size(labExtraTemp, 240, 0);
@@ -397,7 +397,7 @@ void lv_draw_manualLevel(void)
 	lv_obj_align(labExtraTemp, NULL, LV_ALIGN_IN_TOP_MID, 0, 100);
 
 #if HAS_HEATED_BED
-	labBedTemp = lv_label_create(scr, NULL);
+	labBedTemp = lv_label_create_empty(scr);
 	lv_label_set_long_mode(labBedTemp, LV_LABEL_LONG_BREAK);
 	lv_obj_set_style(labBedTemp, &tft_style_label_rel);
 	lv_obj_set_size(labBedTemp, 240, 0);
@@ -405,7 +405,7 @@ void lv_draw_manualLevel(void)
 	lv_obj_align(labBedTemp, NULL, LV_ALIGN_IN_TOP_MID, 0, 130);
 #endif
 
-	level_point_info = lv_label_create(scr, NULL);
+	level_point_info = lv_label_create_empty(scr);
 	lv_label_set_long_mode(level_point_info, LV_LABEL_LONG_BREAK);
 	lv_obj_set_size(level_point_info, 250, 0);
 	lv_obj_set_style(level_point_info, &style_yellow_label);
@@ -413,7 +413,7 @@ void lv_draw_manualLevel(void)
 	lv_obj_align(level_point_info, NULL, LV_ALIGN_IN_TOP_MID, 0, 40);
 	lv_label_set_text(level_point_info, mizar_leveling_text(MIZAR_TEXT_LEVEL_HOME));
 
-	leve_hight_value = lv_label_create(scr, NULL);
+	leve_hight_value = lv_label_create_empty(scr);
 	lv_label_set_long_mode(leve_hight_value, LV_LABEL_LONG_BREAK);
 	lv_obj_set_size(leve_hight_value, 240, 0);
 	lv_obj_set_style(leve_hight_value, &style_yellow_label);

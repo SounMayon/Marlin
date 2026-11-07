@@ -414,14 +414,14 @@ void lv_draw_auto_level(void)
     lv_scr_load(scr);
     lv_obj_clean(scr);
 
-    lv_obj_t *title = lv_label_create(scr, NULL);
+    lv_obj_t *title = lv_label_create_empty(scr);
     lv_obj_set_style(title, &level_style_point_rel);
     lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
     lv_label_set_text(title, gCfgItems.language == LANG_FRENCH ? "Nivellement automatique" : "Automatic leveling");
 
     lv_refr_now(lv_refr_get_disp_refreshing());
 
-    labPoint1 = lv_label_create(scr, NULL);
+    labPoint1 = lv_label_create_empty(scr);
     lv_obj_set_pos(labPoint1, 166, 190);
     lv_obj_set_size(labPoint1, 30, 30);
     lv_label_set_text(labPoint1, " 1 ");
@@ -429,7 +429,7 @@ void lv_draw_auto_level(void)
     lv_label_set_body_draw(labPoint1, true);
     lv_label_set_align(labPoint1, LV_LABEL_ALIGN_CENTER);
 
-    labPoint2 = lv_label_create(scr, NULL);
+    labPoint2 = lv_label_create_empty(scr);
     lv_obj_set_pos(labPoint2, 120, 190);
     lv_obj_set_size(labPoint2, 30, 30);
     lv_label_set_text(labPoint2, " 2 ");
@@ -437,7 +437,7 @@ void lv_draw_auto_level(void)
     lv_label_set_body_draw(labPoint2, true);
     lv_label_set_align(labPoint2, LV_LABEL_ALIGN_CENTER);
 
-    labPoint3 = lv_label_create(scr, NULL);
+    labPoint3 = lv_label_create_empty(scr);
     lv_obj_set_pos(labPoint3, 74, 190);
     lv_obj_set_size(labPoint3, 30, 30);
     lv_label_set_text(labPoint3, " 3 ");
@@ -445,7 +445,7 @@ void lv_draw_auto_level(void)
     lv_label_set_body_draw(labPoint3, true);
     lv_label_set_align(labPoint3, LV_LABEL_ALIGN_CENTER);
 
-    labPoint4 = lv_label_create(scr, NULL);
+    labPoint4 = lv_label_create_empty(scr);
     lv_obj_set_pos(labPoint4, 28, 190);
     lv_obj_set_size(labPoint4, 30, 30);
     lv_label_set_text(labPoint4, " 4 ");
@@ -453,7 +453,7 @@ void lv_draw_auto_level(void)
     lv_label_set_body_draw(labPoint4, true);
     lv_label_set_align(labPoint4, LV_LABEL_ALIGN_CENTER);
 ////////////////////////////////////////////////////////////////////////////////////////
-    labPoint5 = lv_label_create(scr, NULL);
+    labPoint5 = lv_label_create_empty(scr);
     lv_obj_set_pos(labPoint5, 28, 150);
     lv_obj_set_size(labPoint5, 30, 30);
     lv_label_set_text(labPoint5, " 5 ");
@@ -461,7 +461,7 @@ void lv_draw_auto_level(void)
     lv_label_set_body_draw(labPoint5, true);
     lv_label_set_align(labPoint5, LV_LABEL_ALIGN_CENTER);
 
-    labPoint6 = lv_label_create(scr, NULL);
+    labPoint6 = lv_label_create_empty(scr);
     lv_obj_set_pos(labPoint6, 74, 150);
     lv_obj_set_size(labPoint6, 30, 30);
     lv_label_set_text(labPoint6, " 6 ");
@@ -469,7 +469,7 @@ void lv_draw_auto_level(void)
     lv_label_set_body_draw(labPoint6, true);
     lv_label_set_align(labPoint6, LV_LABEL_ALIGN_CENTER);
 
-    labPoint7 = lv_label_create(scr, NULL);
+    labPoint7 = lv_label_create_empty(scr);
     lv_obj_set_pos(labPoint7, 120, 150);
     lv_obj_set_size(labPoint7, 30, 30);
     lv_label_set_text(labPoint7, " 7 ");
@@ -477,7 +477,7 @@ void lv_draw_auto_level(void)
     lv_label_set_body_draw(labPoint7, true);
     lv_label_set_align(labPoint7, LV_LABEL_ALIGN_CENTER);
 
-    labPoint8 = lv_label_create(scr, NULL);
+    labPoint8 = lv_label_create_empty(scr);
     lv_obj_set_pos(labPoint8, 166, 150);
     lv_obj_set_size(labPoint8, 30, 30);
     lv_label_set_text(labPoint8, " 8 ");
@@ -485,7 +485,7 @@ void lv_draw_auto_level(void)
     lv_label_set_body_draw(labPoint8, true);
     lv_label_set_align(labPoint8, LV_LABEL_ALIGN_CENTER);
 //////////////////////////////////////////////////////////////////////////////////////
-    labPoint9 = lv_label_create(scr, NULL);
+    labPoint9 = lv_label_create_empty(scr);
     lv_obj_set_pos(labPoint9, 166, 110);
     lv_obj_set_size(labPoint9, 30, 30);
     lv_label_set_text(labPoint9, " 9 ");
@@ -493,7 +493,7 @@ void lv_draw_auto_level(void)
     lv_label_set_body_draw(labPoint9, true);
     lv_label_set_align(labPoint9, LV_LABEL_ALIGN_CENTER);
 
-    labPoint10 = lv_label_create(scr, NULL);
+    labPoint10 = lv_label_create_empty(scr);
     lv_obj_set_pos(labPoint10, 120, 110);
     lv_obj_set_size(labPoint10, 30, 30);
     lv_label_set_text(labPoint10, "10 ");
@@ -501,7 +501,7 @@ void lv_draw_auto_level(void)
     lv_label_set_body_draw(labPoint10, true);
     lv_label_set_align(labPoint10, LV_LABEL_ALIGN_CENTER);
 
-    labPoint11 = lv_label_create(scr, NULL);
+    labPoint11 = lv_label_create_empty(scr);
     lv_obj_set_pos(labPoint11, 74, 110);
     lv_obj_set_size(labPoint11, 30, 30);
     lv_label_set_text(labPoint11, "11 ");
@@ -509,7 +509,7 @@ void lv_draw_auto_level(void)
     lv_label_set_body_draw(labPoint11, true);
     lv_label_set_align(labPoint11, LV_LABEL_ALIGN_CENTER);
 
-    labPoint12 = lv_label_create(scr, NULL);
+    labPoint12 = lv_label_create_empty(scr);
     lv_obj_set_pos(labPoint12, 28, 110);
     lv_obj_set_size(labPoint12, 30, 30);
     lv_label_set_text(labPoint12, "12 ");
@@ -517,7 +517,7 @@ void lv_draw_auto_level(void)
     lv_label_set_body_draw(labPoint12, true);
     lv_label_set_align(labPoint12, LV_LABEL_ALIGN_CENTER);
 /////////////////////////////////////////////////////////////////////////////////////
-    labPoint13 = lv_label_create(scr, NULL);
+    labPoint13 = lv_label_create_empty(scr);
     lv_obj_set_pos(labPoint13, 28, 70);
     lv_obj_set_size(labPoint13, 30, 30);
     lv_label_set_text(labPoint13, "13 ");
@@ -525,7 +525,7 @@ void lv_draw_auto_level(void)
     lv_label_set_body_draw(labPoint13, true);
     lv_label_set_align(labPoint13, LV_LABEL_ALIGN_CENTER);
 
-    labPoint14 = lv_label_create(scr, NULL);
+    labPoint14 = lv_label_create_empty(scr);
     lv_obj_set_pos(labPoint14, 74, 70);
     lv_obj_set_size(labPoint14, 30, 30);
     lv_label_set_text(labPoint14, "14 ");
@@ -533,7 +533,7 @@ void lv_draw_auto_level(void)
     lv_label_set_body_draw(labPoint14, true);
     lv_label_set_align(labPoint14, LV_LABEL_ALIGN_CENTER);
 
-    labPoint15 = lv_label_create(scr, NULL);
+    labPoint15 = lv_label_create_empty(scr);
     lv_obj_set_pos(labPoint15, 120, 70);
     lv_obj_set_size(labPoint15, 30, 30);
     lv_label_set_text(labPoint15, "15 ");
@@ -541,7 +541,7 @@ void lv_draw_auto_level(void)
     lv_label_set_body_draw(labPoint15, true);
     lv_label_set_align(labPoint15, LV_LABEL_ALIGN_CENTER);
 
-    labPoint16 = lv_label_create(scr, NULL);
+    labPoint16 = lv_label_create_empty(scr);
     lv_obj_set_pos(labPoint16, 166, 70);
     lv_obj_set_size(labPoint16, 30, 30);
     lv_label_set_text(labPoint16, "16 ");
@@ -556,7 +556,7 @@ void lv_draw_auto_level(void)
 	lv_btn_set_style(buttonStop, LV_BTN_STYLE_PR, &level_style_stopbtn_enable);
 	lv_obj_set_size(buttonStop, 225, 60);
 	lv_obj_align(buttonStop, scr, LV_ALIGN_IN_BOTTOM_LEFT, 10, -5);
-	labelStop = lv_label_create(buttonStop, NULL);
+	labelStop = lv_label_create_empty(buttonStop);
 
 	buttonReturn = lv_btn_create(scr, NULL);
 	lv_obj_set_event_cb_mks(buttonReturn, event_handler, ID_ALEVEL_RETURN, NULL, 0);
@@ -564,9 +564,9 @@ void lv_draw_auto_level(void)
 	lv_btn_set_style(buttonReturn, LV_BTN_STYLE_PR, &level_style_backbtn_enable);
 	lv_obj_set_size(buttonReturn, 225, 60);
 	lv_obj_align(buttonReturn, scr, LV_ALIGN_IN_BOTTOM_RIGHT, -10, -5);
-	labelReturn = lv_label_create(buttonReturn, NULL);
+	labelReturn = lv_label_create_empty(buttonReturn);
 
-	auto_level_info = lv_label_create(scr, NULL);
+	auto_level_info = lv_label_create_empty(scr);
 	lv_label_set_long_mode(auto_level_info, LV_LABEL_LONG_BREAK);
 	lv_obj_set_pos(auto_level_info, 240, 70);
 	lv_obj_set_size(auto_level_info, 250, 0);
@@ -574,13 +574,13 @@ void lv_draw_auto_level(void)
 	lv_label_set_align(auto_level_info, LV_LABEL_ALIGN_LEFT);
 	lv_label_set_text(auto_level_info, mizar_leveling_text(MIZAR_TEXT_AUTO_START));
 
-	labExtraTemp = lv_label_create(scr, NULL);
+	labExtraTemp = lv_label_create_empty(scr);
     lv_obj_set_style(labExtraTemp, &level_style_point_rel);
 	lv_obj_set_pos(labExtraTemp, 240, 140);
 	lv_label_set_align(labExtraTemp, LV_LABEL_ALIGN_LEFT);
 
 #if HAS_HEATED_BED
-	labBedTemp = lv_label_create(scr, NULL);
+	labBedTemp = lv_label_create_empty(scr);
     lv_obj_set_style(labBedTemp, &level_style_point_rel);
 	lv_obj_set_pos(labBedTemp, 240, 180);
 	lv_label_set_align(labBedTemp, LV_LABEL_ALIGN_LEFT);

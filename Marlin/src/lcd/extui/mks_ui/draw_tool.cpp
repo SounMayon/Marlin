@@ -198,7 +198,7 @@ void lv_draw_tool(void)
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t *title = lv_label_create(scr, NULL);
+  lv_obj_t *title = lv_label_create_empty(scr);
   lv_obj_set_style(title, &tft_style_label_rel);
   lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
   lv_label_set_text(title, creat_title_text());
@@ -288,14 +288,14 @@ void lv_draw_tool(void)
 	lv_btn_set_layout(buttonAuto, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonManual, LV_LAYOUT_OFF);
 
-  lv_obj_t *labelPreHeat = lv_label_create(buttonPreHeat, NULL);
-  lv_obj_t *label_Move = lv_label_create(buttonMove, NULL);
-  lv_obj_t *label_Home = lv_label_create(buttonHome, NULL);
-  lv_obj_t *label_Filament = lv_label_create(buttonFilament, NULL);
-  lv_obj_t *label_MotorOff = lv_label_create(buMotorOff, NULL);
-  lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
-	lv_obj_t *labelAuto  = lv_label_create(buttonAuto, NULL);
-	lv_obj_t *labelManual = lv_label_create(buttonManual, NULL);
+  lv_obj_t *labelPreHeat = lv_label_create_empty(buttonPreHeat);
+  lv_obj_t *label_Move = lv_label_create_empty(buttonMove);
+  lv_obj_t *label_Home = lv_label_create_empty(buttonHome);
+  lv_obj_t *label_Filament = lv_label_create_empty(buttonFilament);
+  lv_obj_t *label_MotorOff = lv_label_create_empty(buMotorOff);
+  lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
+	lv_obj_t *labelAuto  = lv_label_create_empty(buttonAuto);
+	lv_obj_t *labelManual = lv_label_create_empty(buttonManual);
 
   if (gCfgItems.multiple_language != 0)
   {

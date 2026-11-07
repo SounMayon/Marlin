@@ -125,6 +125,13 @@
   #define BTN_X_PIXEL       117   // TFT_screen.btn_x_pixel
   #define BTN_Y_PIXEL       140   // TFT_screen.btn_y_pixel
 
+  // Shared positions for the 4-column MKS 480x320 guided-leveling screens.
+  #define BTN_ROW1_COL1_POS 10, (titleHeight + INTERVAL_V)
+  #define BTN_ROW1_COL4_POS (TFT_WIDTH - BTN_X_PIXEL - 10), (titleHeight + INTERVAL_V)
+  #define BTN_ROW2_COL1_POS 10, (TFT_HEIGHT - BTN_Y_PIXEL - 10)
+  #define BTN_ROW2_COL2_POS (10 + BTN_X_PIXEL), (TFT_HEIGHT - BTN_Y_PIXEL - 10)
+  #define BTN_ROW2_COL4_POS (TFT_WIDTH - BTN_X_PIXEL - 10), (TFT_HEIGHT - BTN_Y_PIXEL - 10)
+
   #define SIMPLE_FIRST_PAGE_GRAP   30
 
   #define BUTTON_TEXT_Y_OFFSET    -20

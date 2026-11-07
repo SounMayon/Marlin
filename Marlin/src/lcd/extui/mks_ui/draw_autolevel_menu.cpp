@@ -85,7 +85,7 @@ void lv_draw_autolevel_menu(void)
     lv_scr_load(scr);
     lv_obj_clean(scr);
 
-    lv_obj_t * title = lv_label_create(scr, NULL);
+    lv_obj_t * title = lv_label_create_empty(scr);
     lv_obj_set_style(title, &tft_style_label_rel);
     lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
     lv_label_set_text(title, creat_title_text());
@@ -136,10 +136,10 @@ void lv_draw_autolevel_menu(void)
     lv_btn_set_layout(buttonOption, LV_LAYOUT_OFF);
     lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
-    lv_obj_t *labelZOffset  = lv_label_create(buttonZOffset, NULL);
-    lv_obj_t *labelOption = lv_label_create(buttonOption, NULL);
-    lv_obj_t *labelBack = lv_label_create(buttonBack, NULL);
-    labelInfo = lv_label_create(scr, NULL);
+    lv_obj_t *labelZOffset  = lv_label_create_empty(buttonZOffset);
+    lv_obj_t *labelOption = lv_label_create_empty(buttonOption);
+    lv_obj_t *labelBack = lv_label_create_empty(buttonBack);
+    labelInfo = lv_label_create_empty(scr);
 
     if(gCfgItems.multiple_language != 0) {
         lv_label_set_text(labelZOffset, set_menu.machine_para);
