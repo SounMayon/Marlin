@@ -6,7 +6,7 @@ Dernière mise à jour : 2026-11-07 (Europe/Paris)
 
 - Base : MarlinFirmware/Marlin 2.1.2.9, commit 7d300b42acadb3e7467e9f4b4fc03ebea592c2d0.
 - Branche de travail : mizar-s-marlin-2.1.2.9.
-- Branche auditée avant ce checkpoint : bed50dfd5d9c2c5a2474cb254da7b9f81047cbad.
+- Branche auditée avant ce checkpoint : a103fa05e476fe6e1721406ca40ef92f0e64bd04.
 - Les branches main et bugfix-2.1.x n’ont pas été modifiées.
 
 ## État de compilation vérifié
@@ -15,8 +15,10 @@ Le workflow GitHub Actions « Mizar S Marlin 2.1.2.9 build » exécute `pio run 
 
 - Run 42392936780, commit 58a006e4cef499c53757f1ed349218d530fe7479 : compilation réussie et artefact `firmware.bin` publié. Ce run a révélé un avertissement `z_raised` inutilisé.
 - Run 42393229867, commit bed50dfd5d9c2c5a2474cb254da7b9f81047cbad : compilation réussie après le garde conditionnel de `z_raised`; aucun avertissement du code Mizar n’apparaît dans les journaux.
+- Run 42393938496, commit a103fa05e476fe6e1721406ca40ef92f0e64bd04 : compilation réussie après la mise à jour de la documentation.
+- Le présent checkpoint supprime la dépendance de fin de pause à l’index SD. Son résultat CI reste à confirmer.
 - Les avertissements restants concernent le framework Maple, l’environnement Maple déprécié et le segment ELF RWX. Ils n’ont pas empêché la production de `firmware.bin`.
-- La compilation a été exécutée par GitHub Actions. Elle ne valide ni le fonctionnement de l’écran, ni les capteurs, ni la reprise d’impression sur la machine.
+- Les compilations ont été exécutées par GitHub Actions. Elles ne valident ni le fonctionnement de l’écran, ni les capteurs, ni la reprise d’impression sur la machine.
 
 ## Travail déjà intégré
 
@@ -29,7 +31,7 @@ Le workflow GitHub Actions « Mizar S Marlin 2.1.2.9 build » exécute `pio run 
 
 ## Runout, PLR et ressources
 
-- Configuration LVGL : `MT_DET_1_PIN` et `FIL_RUNOUT_PIN` partagent PA15; le capteur Marlin natif reste désactivé pour éviter le double déclenchement. Le handler MKS échantillonne le signal actif-bas, lance une pause SD et le polling attend la fin du mouvement avant de parquer la tête. La reprise restaure XY/Z puis relance M24.
+- Configuration LVGL : `MT_DET_1_PIN` et `FIL_RUNOUT_PIN` partagent PA15; le capteur Marlin natif reste désactivé pour éviter le double déclenchement. Le handler MKS échantillonne le signal actif-bas, lance une pause SD et le polling attend la fin du mouvement avant de parquer la tête; ce checkpoint évite un blocage si le runout arrive au début du fichier. La reprise restaure XY/Z puis relance M24.
 - Ce chemin ne lance pas automatiquement M600, une purge ou un chargement; le geste de réinsertion/reprise est manuel depuis l’écran. La polarité et le comportement électrique restent à tester sur la carte.
 - Variante sans LVGL : le pin de runout est PA4, également déclaré pour TOUCH_CS dans la définition de carte; ne pas utiliser cette variante sans résoudre cette affectation.
 - PLR est activé avec entrée PE3 active-bas, sans pull-up/pull-down interne configuré tant que le circuit de détection n’est pas confirmé. Les données de reprise sont stockées après SettingsData avec contrôle CRC et vérification de taille; la séquence complète coupure/redémarrage/SD/reprise n’a pas été essayée.

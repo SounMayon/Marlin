@@ -46,7 +46,8 @@ void printer_state_polling() {
   char str_1[16];
   if (uiCfg.print_state == PAUSING) {
     #if HAS_MEDIA
-      if (!planner.has_blocks_queued() && card.getIndex() > MIN_FILE_PRINTED)
+      // PAUSING is entered only from an active SD print; do not gate on file offset.
+      if (!planner.has_blocks_queued())
         uiCfg.waitEndMoves++;
 
       if (uiCfg.waitEndMoves > 20) {
