@@ -502,7 +502,7 @@ void PrintJobRecovery::resume() {
     sprintf_P(cmd, PSTR("M420S%cZ%s"), '0' + (char)info.flag.leveling, dtostrf(info.fade, 1, 1, str_1));
     PROCESS_SUBCOMMANDS_NOW(cmd);
 
-    #if BOTH(!HOMING_Z_DOWN, DISABLED(POWER_LOSS_STORAGE_Z_VALUE))
+    #if !HOMING_Z_DOWN && DISABLED(POWER_LOSS_STORAGE_Z_VALUE)
       // Undo the native Z-raise correction when the recovery record stores a delta.
       sprintf_P(cmd, PSTR("G92.9Z%s"), dtostrf(z_now, 1, 1, str_1));
       PROCESS_SUBCOMMANDS_NOW(cmd);
