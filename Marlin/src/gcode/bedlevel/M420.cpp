@@ -69,18 +69,37 @@ void GcodeSuite::M420() {
     if (parser.intval('S') == 2) {
       const float x_min = probe.min_x(), x_max = probe.max_x(),
                   y_min = probe.min_y(), y_max = probe.max_y();
-      #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        xy_pos_t start, spacing;
-        start.set(x_min, y_min);
-        spacing.set((x_max - x_min) / (GRID_MAX_CELLS_X),
-                    (y_max - y_min) / (GRID_MAX_CELLS_Y));
-        bedlevel.set_grid(spacing, start);
+      #if ENABLED(MIZAR_S_DUAL_LEVELING)
+        if (auto_manu_level_sel) {
+          xy_pos_t start, spacing;
+          start.set(x_min, y_min);
+          spacing.set((x_max - x_min) / (GRID_MAX_CELLS_X),
+                      (y_max - y_min) / (GRID_MAX_CELLS_Y));
+          bedlevel.set_grid(spacing, start);
+          GRID_LOOP(x, y) {
+            bedlevel.z_values[x][y] = 0.001f * random(-200, 200);
+            TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
+          }
+          bedlevel.refresh_bed_level();
+        }
+        else {
+          mbl.reset();
+          GRID_LOOP(x, y) mbl.z_values[x][y] = 0.001f * random(-200, 200);
+        }
+      #else
+        #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+          xy_pos_t start, spacing;
+          start.set(x_min, y_min);
+          spacing.set((x_max - x_min) / (GRID_MAX_CELLS_X),
+                      (y_max - y_min) / (GRID_MAX_CELLS_Y));
+          bedlevel.set_grid(spacing, start);
+        #endif
+        GRID_LOOP(x, y) {
+          bedlevel.z_values[x][y] = 0.001f * random(-200, 200);
+          TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
+        }
+        TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
       #endif
-      GRID_LOOP(x, y) {
-        bedlevel.z_values[x][y] = 0.001 * random(-200, 200);
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
-      }
-      TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
       SERIAL_ECHOPGM("Simulated " STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh ");
       SERIAL_ECHOPGM(" (", x_min);
       SERIAL_CHAR(','); SERIAL_ECHO(y_min);
@@ -153,33 +172,54 @@ void GcodeSuite::M420() {
           set_bed_leveling_enabled(false);
           bedlevel.adjust_mesh_to_mean(true, cval);
 
+        #elif ENABLED(MIZAR_S_DUAL_LEVELING)
+
+          // Apply C only to the selected mesh; the manual grid has no ABL cache.
+          auto mesh_value = [](const uint8_t x, const uint8_t y) -> float& {
+            return auto_manu_level_sel ? bedlevel.z_values[x][y] : mbl.z_values[x][y];
+          };
+
+          #if ENABLED(M420_C_USE_MEAN)
+            float mesh_sum = 0;
+            GRID_LOOP(x, y) mesh_sum += mesh_value(x, y);
+            const float zmean = mesh_sum / float(GRID_MAX_POINTS) + cval;
+          #else
+            float lo_val = 100, hi_val = -100;
+            GRID_LOOP(x, y) {
+              const float z = mesh_value(x, y);
+              NOMORE(lo_val, z);
+              NOLESS(hi_val, z);
+            }
+            const float zmean = (lo_val + hi_val) / 2.0 + cval;
+          #endif
+
+          if (!NEAR_ZERO(zmean)) {
+            set_bed_leveling_enabled(false);
+            GRID_LOOP(x, y) {
+              mesh_value(x, y) -= zmean;
+              TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, mesh_value(x, y)));
+            }
+            if (auto_manu_level_sel) bedlevel.refresh_bed_level();
+          }
+
         #else
 
           #if ENABLED(M420_C_USE_MEAN)
-
-            // Get the sum and average of all mesh values
             float mesh_sum = 0;
             GRID_LOOP(x, y) mesh_sum += bedlevel.z_values[x][y];
             const float zmean = mesh_sum / float(GRID_MAX_POINTS);
-
-          #else // midrange
-
-            // Find the low and high mesh values.
+          #else
             float lo_val = 100, hi_val = -100;
             GRID_LOOP(x, y) {
               const float z = bedlevel.z_values[x][y];
               NOMORE(lo_val, z);
               NOLESS(hi_val, z);
             }
-            // Get the midrange plus C value. (The median may be better.)
             const float zmean = (lo_val + hi_val) / 2.0 + cval;
-
           #endif
 
-          // If not very close to 0, adjust the mesh
           if (!NEAR_ZERO(zmean)) {
             set_bed_leveling_enabled(false);
-            // Subtract the mean from all values
             GRID_LOOP(x, y) {
               bedlevel.z_values[x][y] -= zmean;
               TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
@@ -204,7 +244,13 @@ void GcodeSuite::M420() {
       planner.bed_level_matrix.debug(F("Bed Level Correction Matrix:"));
     #else
       if (leveling_is_valid()) {
-        #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        #if ENABLED(MIZAR_S_DUAL_LEVELING)
+          if (auto_manu_level_sel) bedlevel.print_leveling_grid();
+          else {
+            SERIAL_ECHOLNPGM("Mesh Bed Level data:");
+            mbl.report_mesh();
+          }
+        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
           bedlevel.print_leveling_grid();
         #elif ENABLED(MESH_BED_LEVELING)
           SERIAL_ECHOLNPGM("Mesh Bed Level data:");
@@ -248,9 +294,13 @@ void GcodeSuite::M420() {
 }
 
 void GcodeSuite::M420_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, F(
-    TERN(MESH_BED_LEVELING, "Mesh Bed Leveling", TERN(AUTO_BED_LEVELING_UBL, "Unified Bed Leveling", "Auto Bed Leveling"))
-  ));
+  #if ENABLED(MIZAR_S_DUAL_LEVELING)
+    report_heading_etc(forReplay, auto_manu_level_sel ? F("Auto Bed Leveling") : F("Mesh Bed Leveling"));
+  #else
+    report_heading_etc(forReplay, F(
+      TERN(MESH_BED_LEVELING, "Mesh Bed Leveling", TERN(AUTO_BED_LEVELING_UBL, "Unified Bed Leveling", "Auto Bed Leveling"))
+    ));
+  #endif
   SERIAL_ECHOF(
     F("  M420 S"), planner.leveling_active
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
