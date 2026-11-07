@@ -280,11 +280,18 @@
   #endif
 #endif
 
-#define HAS_SPI_FLASH                       1
-#if HAS_SPI_FLASH
-  #define SPI_FLASH_SIZE                    0x1000000  // 16MB
-  #define W25QXX_CS_PIN                     PB12
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+// W25Q128-compatible external SPI flash used by the MKS LVGL UI (16MB).
+#define SPI_FLASH
+#define HAS_SPI_FLASH                       1  // Legacy Mizar UI compatibility
+#if ENABLED(SPI_FLASH)
+  #define SPI_FLASH_SIZE                    0x1000000
+  #define SPI_FLASH_CS_PIN                  PB12
+  #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_MOSI_PIN                PB15
+  // Retain the legacy names for Mizar-specific W25Qxx helpers.
+  #define W25QXX_CS_PIN                     SPI_FLASH_CS_PIN
+  #define W25QXX_MOSI_PIN                   SPI_FLASH_MOSI_PIN
+  #define W25QXX_MISO_PIN                   SPI_FLASH_MISO_PIN
+  #define W25QXX_SCK_PIN                    SPI_FLASH_SCK_PIN
 #endif
