@@ -232,6 +232,17 @@ public:
  */
 G29_TYPE GcodeSuite::G29() {
 
+  #if ENABLED(MIZAR_S_DUAL_LEVELING)
+    if (!auto_manu_level_sel) {
+      G29_MBL();
+      #if ENABLED(G29_RETRY_AND_RECOVER)
+        return false;
+      #else
+        return;
+      #endif
+    }
+  #endif
+
   DEBUG_SECTION(log_G29, "G29", DEBUGGING(LEVELING));
 
   // Leveling state is persistent when done manually with multiple G29 commands
