@@ -85,3 +85,41 @@ Attention : la configuration source commente `FILAMENT_RUNOUT_SENSOR` alors que 
 Marlin 2.1.2.9 contient déjà une implémentation MKS LVGL sous `Marlin/src/lcd/extui/mks_ui`, alors que le code Geeetech 2.0.7.2 est sous `Marlin/src/lcd/extui/lib/mks_ui`. Il ne faut donc pas écraser la version cible avec l'ancien répertoire. Le travail doit porter sur les extensions Mizar spécifiques (sélection des deux nivellements, commandes de l'écran, reprise runout/PLR, textes et ressources manquantes) après comparaison fichier par fichier.
 
 Le linker `geeetech_lcd35.ld` du constructeur et `mks_robin_nano.ld` de Marlin 2.1.2.9 ont le même contenu observé, avec origine ROM `0x08007000`. L'environnement cible hérite donc de la configuration de base STM32F103VE à offset `0x7000`; le script custom du constructeur n'a pas été copié à ce stade.
+
+## Audit approfondi du double nivellement
+
+Le firmware constructeur n'active pas simplement deux options indépendantes. Il modifie le modèle de données :
+
+- ABL bilinéaire : maillage et coordonnées bilinéaires propres.
+- MBL manuel : maillage distinct et coordonnées propres.
+- `auto_manu_level_sel` sélectionne le maillage utilisé par le planificateur.
+- `leveling_is_valid()`, `set_bed_leveling_enabled()`, `Planner::apply_leveling()`, `Planner::unapply_leveling()`, `M420`, `G29`, la sauvegarde EEPROM et l'écran tactile utilisent cette sélection.
+- Les données ABL/MBL sont aussi sauvegardées dans les paramètres MKS SPI (`bk_abl_*`, `bk_mbl_z_value`).
+
+Les premiers fichiers confirmés comme concernés sont :
+`feature/bedlevel/bedlevel.h/.cpp`,
+`feature/bedlevel/abl/abl.h`,
+`feature/bedlevel/mbl/mesh_bed_leveling.h`,
+`module/planner.cpp`,
+`module/settings.cpp`,
+`gcode/bedlevel/M420.cpp`,
+`gcode/bedlevel/abl/G29.cpp`,
+`gcode/bedlevel/mbl/G29.cpp`,
+`MarlinCore.cpp`,
+et les vues MKS `draw_autoLevel.cpp`, `draw_manuaLevel.cpp`.
+
+**Défaut trouvé dans le code constructeur :** dans `leveling_data_backup()` et `leveling_data_restore()`, les coordonnées Y de `bilinear_start` et `bilinear_grid_spacing` sont assignées à partir de X au lieu de Y. Le même défaut apparaît dans la sauvegarde/restauration des valeurs MKS SPI. Cette erreur ne sera pas recopiée. Le portage conservera X et Y séparément et sera vérifié avec des valeurs de départ/espacement non identiques.
+
+## Runout et reprise
+
+- Le firmware constructeur a un chemin MKS LVGL utilisant `MT_DET_1_PIN` et un chemin standard Marlin utilisant `FIL_RUNOUT_PIN`; la configuration constructeur n'active pas le `FILAMENT_RUNOUT_SENSOR` natif.
+- Le runout natif Marlin 2.1.2.9 évite explicitement de déclencher à nouveau l'événement lorsqu'une pause est déjà en cours. Cette protection doit être prise en compte dans l'intégration MKS.
+- L'interface MKS contient des écrans et états de changement de filament, mais la version 2.1.2.9 a déjà évolué. Le code d'écran ne sera pas remplacé en bloc par la version ancienne.
+- Le PLR constructeur appelle directement le code MKS et le stockage EEPROM ; le PLR Marlin 2.1.2.9 utilise son propre fichier de récupération et ses propres API. Il faut préserver la compatibilité de l'écran sans dupliquer deux systèmes de récupération concurrents.
+
+## Compilation — état
+
+- Le nouvel environnement `geeetech_lcd35` est déclaré dans `ini/stm32f1.ini`.
+- Il hérite de `STM32F103VE_robin`, qui définit l'offset de bootloader `0x7000`; il remplace le timer servo TIM2 par TIM1, adapté à la sortie BLTouch PA8.
+- Les fichiers linker constructeur et MKS Robin Nano ont été comparés et sont identiques.
+- Aucune compilation PlatformIO n'a été exécutée à distance. L'environnement et les flags restent à valider par compilation utilisateur.
