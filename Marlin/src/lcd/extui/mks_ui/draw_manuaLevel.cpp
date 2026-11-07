@@ -166,11 +166,11 @@ static void event_handler(lv_obj_t *obj, lv_event_t event)
 			if (lvgl_wait_for_move == 0 || uiCfg.manu_leveling_done_flag == true)
 			{
 			#if 0//def EN_LEVELING_PREHEAT
-				thermalManager.degTargetHotend(uiCfg.extruderIndex) = uiCfg.hotendTargetTempBak;
+				thermalManager.setTargetHotend(uiCfg.hotendTargetTempBak, uiCfg.extruderIndex);
 				thermalManager.start_watching_hotend(uiCfg.extruderIndex);
 
 #if HAS_HEATED_BED
-				thermalManager.degTargetBed() = uiCfg.desireBedTempBak;
+				thermalManager.setTargetBed(uiCfg.desireBedTempBak);
 				thermalManager.start_watching_bed();
 #endif
 			#endif
@@ -216,9 +216,9 @@ void lv_flash_manual_level()
 	if (uiCfg.manu_leveling_heat_flg)
 	{
 	#if 0//def EN_LEVELING_PREHEAT
-		if (((abs((int)((int)thermalManager.temp_hotend[uiCfg.extruderIndex].celsius - BLTOUCH_HEAT_EXTRUDE_TEMP)) <= 3) /*|| ((int)thermalManager.temp_hotend[uiCfg.extruderIndex].celsius > BLTOUCH_HEAT_EXTRUDE_TEMP)*/)
+		if (((abs((int)((int)thermalManager.wholeDegHotend(uiCfg.extruderIndex) - BLTOUCH_HEAT_EXTRUDE_TEMP)) <= 3) /*|| ((int)thermalManager.wholeDegHotend(uiCfg.extruderIndex) > BLTOUCH_HEAT_EXTRUDE_TEMP)*/)
 			#if HAS_HEATED_BED
-			&& ((abs((int)((int)thermalManager.temp_bed.celsius - BLTOUCH_HEAT_BED_TEMP)) <= 1) || ((int)thermalManager.temp_bed.celsius > BLTOUCH_HEAT_BED_TEMP))
+			&& ((abs((int)((int)thermalManager.wholeDegBed() - BLTOUCH_HEAT_BED_TEMP)) <= 1) || ((int)thermalManager.wholeDegBed() > BLTOUCH_HEAT_BED_TEMP))
 			#endif
 		)
 	#endif	
@@ -431,10 +431,10 @@ void lv_draw_manualLevel(void)
 	uiCfg.desireBedTempBak = thermalManager.degTargetBed();
 
 	#if 0//def EN_LEVELING_PREHEAT
-		thermalManager.degTargetHotend(uiCfg.extruderIndex) = BLTOUCH_HEAT_EXTRUDE_TEMP;
+		thermalManager.setTargetHotend(BLTOUCH_HEAT_EXTRUDE_TEMP, uiCfg.extruderIndex);
 		thermalManager.start_watching_hotend(uiCfg.extruderIndex);
 		#if HAS_HEATED_BED
-		thermalManager.degTargetBed() = BLTOUCH_HEAT_BED_TEMP;
+		thermalManager.setTargetBed(BLTOUCH_HEAT_BED_TEMP);
 		thermalManager.start_watching_bed();
 		#endif
 		lv_label_set_text(level_point_info, leveling_menu.level_heat);
