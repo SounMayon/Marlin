@@ -47,7 +47,11 @@
 #endif
 
 bool leveling_is_valid() {
-  return TERN1(HAS_MESH, bedlevel.mesh_is_valid());
+  #if ENABLED(MIZAR_S_DUAL_LEVELING)
+    return auto_manu_level_sel ? bedlevel.mesh_is_valid() : mbl.mesh_is_valid();
+  #else
+    return TERN1(HAS_MESH, bedlevel.mesh_is_valid());
+  #endif
 }
 
 /**
@@ -116,7 +120,12 @@ TemporaryBedLevelingState::TemporaryBedLevelingState(const bool enable) : saved(
 void reset_bed_level() {
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("reset_bed_level");
   IF_DISABLED(AUTO_BED_LEVELING_UBL, set_bed_leveling_enabled(false));
-  TERN_(HAS_MESH, bedlevel.reset());
+  #if ENABLED(MIZAR_S_DUAL_LEVELING)
+    bedlevel.reset();  // Automatic bilinear mesh
+    mbl.reset();       // Independent manual mesh
+  #else
+    TERN_(HAS_MESH, bedlevel.reset());
+  #endif
   TERN_(ABL_PLANAR, planner.bed_level_matrix.set_to_identity());
 }
 
