@@ -138,7 +138,7 @@
   #endif
 #endif
 #ifndef FAN_PIN
-  #define FAN_PIN                           PE1			   
+  #define FAN0_PIN                           PE1			   
 	#define FAN_SOFT_PWM
 #endif
 #ifndef HEATER_BED_PIN
