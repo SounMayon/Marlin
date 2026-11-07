@@ -549,6 +549,7 @@ private:
     static G29_TYPE G29();
     #if ENABLED(MIZAR_S_DUAL_LEVELING)
       static void G29_MBL();
+      static void M421_MBL();
     #endif
   #endif
 
