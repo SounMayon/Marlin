@@ -2,8 +2,8 @@ import os
 Import("env")
 
 # Geeetech GTM32 LCD35 A10 bootloader reserves 0x08000000-0x08006FFF.
-for define in env["CPPDEFINES"]:
-    if define[0] == "VECT_TAB_ADDR":
+for define in list(env["CPPDEFINES"]):
+    if isinstance(define, tuple) and define[0] == "VECT_TAB_ADDR":
         env["CPPDEFINES"].remove(define)
 env["CPPDEFINES"].append(("VECT_TAB_ADDR", "0x08007000"))
 
