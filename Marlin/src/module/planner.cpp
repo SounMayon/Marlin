@@ -1614,14 +1614,30 @@ void Planner::check_axes_activity() {
 
     #elif HAS_MESH
 
-      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        const float fade_scaling_factor = fade_scaling_factor_for_z(raw.z);
-        if (fade_scaling_factor) raw.z += fade_scaling_factor * bedlevel.get_z_correction(raw);
+      #if ENABLED(MIZAR_S_DUAL_LEVELING)
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          const float fade_scaling_factor = fade_scaling_factor_for_z(raw.z);
+        #else
+          constexpr float fade_scaling_factor = 1.0f;
+        #endif
+        if (auto_manu_level_sel) {
+          if (fade_scaling_factor)
+            raw.z += fade_scaling_factor * bedlevel.get_z_correction(raw);
+        }
+        else {
+          if (fade_scaling_factor)
+            raw.z += fade_scaling_factor * mbl.get_z_correction(raw);
+          raw.z += mbl.get_z_offset();
+        }
       #else
-        raw.z += bedlevel.get_z_correction(raw);
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          const float fade_scaling_factor = fade_scaling_factor_for_z(raw.z);
+          if (fade_scaling_factor) raw.z += fade_scaling_factor * bedlevel.get_z_correction(raw);
+        #else
+          raw.z += bedlevel.get_z_correction(raw);
+        #endif
+        TERN_(MESH_BED_LEVELING, raw.z += bedlevel.get_z_offset());
       #endif
-
-      TERN_(MESH_BED_LEVELING, raw.z += bedlevel.get_z_offset());
 
     #endif
   }
@@ -1639,9 +1655,18 @@ void Planner::check_axes_activity() {
 
     #elif HAS_MESH
 
-      const float z_correction = bedlevel.get_z_correction(raw),
-                  z_full_fade = DIFF_TERN(MESH_BED_LEVELING, raw.z, bedlevel.get_z_offset()),
-                  z_no_fade = z_full_fade - z_correction;
+      #if ENABLED(MIZAR_S_DUAL_LEVELING)
+        const float z_correction = auto_manu_level_sel
+                                   ? bedlevel.get_z_correction(raw)
+                                   : mbl.get_z_correction(raw),
+                    z_offset = auto_manu_level_sel ? 0.0f : mbl.get_z_offset(),
+                    z_full_fade = raw.z - z_offset,
+                    z_no_fade = z_full_fade - z_correction;
+      #else
+        const float z_correction = bedlevel.get_z_correction(raw),
+                    z_full_fade = DIFF_TERN(MESH_BED_LEVELING, raw.z, bedlevel.get_z_offset()),
+                    z_no_fade = z_full_fade - z_correction;
+      #endif
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         if (!z_fade_height || z_no_fade <= 0.0f)                              // Not fading or at bed level?
