@@ -28,7 +28,7 @@
 
 #if ENABLED(MESH_BED_LEVELING)
 
-#include "../../../feature/bedlevel/mbl.h"
+#include "../../../feature/bedlevel/bedlevel.h"
 
 #include "../../gcode.h"
 #include "../../queue.h"
