@@ -317,6 +317,9 @@ typedef struct SettingsDataStruct {
   // BLTOUCH
   //
   bool bltouch_od_5v_mode;
+  #if ENABLED(MIZAR_S_DUAL_LEVELING)
+    bool mizar_auto_level_selected;                    // Mizar S: 1=ABL/BLTouch, 0=manual mesh
+  #endif
   #ifdef BLTOUCH_HS_MODE
     bool bltouch_high_speed_mode;                       // M401 S
   #endif
@@ -887,7 +890,7 @@ void MarlinSettings::postprocess() {
     {
       #if ENABLED(MESH_BED_LEVELING)
         static_assert(
-          sizeof(bedlevel.z_values) == GRID_MAX_POINTS * sizeof(bedlevel.z_values[0][0]),
+          sizeof(mbl.z_values) == GRID_MAX_POINTS * sizeof(mbl.z_values[0][0]),
           "MBL Z array is the wrong size."
         );
       #else
@@ -897,7 +900,7 @@ void MarlinSettings::postprocess() {
       const uint8_t mesh_num_x = TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_X, 3),
                     mesh_num_y = TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_Y, 3);
 
-      EEPROM_WRITE(TERN(MESH_BED_LEVELING, bedlevel.z_offset, dummyf));
+      EEPROM_WRITE(TERN(MESH_BED_LEVELING, mbl.z_offset, dummyf));
       EEPROM_WRITE(mesh_num_x);
       EEPROM_WRITE(mesh_num_y);
 
@@ -906,7 +909,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(mesh_check);
 
       #if ENABLED(MESH_BED_LEVELING)
-        EEPROM_WRITE(bedlevel.z_values);
+        EEPROM_WRITE(mbl.z_values);
       #else
         for (uint8_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_WRITE(dummyf);
       #endif
@@ -1889,10 +1892,10 @@ void MarlinSettings::postprocess() {
         }
 
         #if ENABLED(MESH_BED_LEVELING)
-          if (!validating) bedlevel.z_offset = dummyf;
+          if (!validating) mbl.z_offset = dummyf;
           if (mesh_num_x == (GRID_MAX_POINTS_X) && mesh_num_y == (GRID_MAX_POINTS_Y)) {
             // EEPROM data fits the current mesh
-            EEPROM_READ(bedlevel.z_values);
+            EEPROM_READ(mbl.z_values);
           }
           else if (mesh_num_x > (GRID_MAX_POINTS_X) || mesh_num_y > (GRID_MAX_POINTS_Y)) {
             eeprom_error = ERR_EEPROM_CORRUPT;
@@ -1900,7 +1903,7 @@ void MarlinSettings::postprocess() {
           }
           else {
             // EEPROM data is stale
-            if (!validating) bedlevel.reset();
+            if (!validating) mbl.reset();
             for (uint16_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_READ(dummyf);
           }
         #else
