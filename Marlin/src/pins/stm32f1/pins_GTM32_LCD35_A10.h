@@ -165,6 +165,7 @@
 
   #define POWER_LOSS_PIN                  	PE3   // PW_DET
   	
+  #define FIL_RUNOUT_PIN                    PA15  // Native Marlin runout sensor, shared with MKS LVGL sensor
   #define MT_DET_1_PIN                      PA15 		// LVGL UI FILAMENT RUNOUT1 PIN
   //#define MT_DET_2_PIN                    	PA12    // LVGL UI FILAMENT RUNOUT2 PIN
   //#define MT_DET_3_PIN											PA13 		// LVGL UI FILAMENT RUNOUT3 PIN
