@@ -48,8 +48,10 @@ static void event_handler(lv_obj_t * obj, lv_event_t event)
     if(event == LV_EVENT_RELEASED) {
         switch(obj->mks_obj_id) {
         case ID_ALEVELMENU_OPTION:
+            set_bed_leveling_enabled(false);
+            auto_manu_level_sel = true;
             clear_cur_ui();
-            lv_draw_dialog(DIALOG_CHECK_SENSOR);
+            lv_draw_auto_level();
             break;
         case ID_ALEVELMENU_ZOFFSET:
             if(leveling_is_valid()) {
@@ -58,6 +60,8 @@ static void event_handler(lv_obj_t * obj, lv_event_t event)
             }
             break;
         case ID_ALEVELMENU_RETURN:
+            auto_manu_level_sel = uiCfg.leveling_type_save;
+            set_bed_leveling_enabled(uiCfg.leveling_was_active && leveling_is_valid());
             clear_cur_ui();
             draw_return_ui();
             break;
