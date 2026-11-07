@@ -459,6 +459,7 @@ extern keyboard_value_state keyboard_value;
 
  #if ENABLED(MIZAR_S_DUAL_LEVELING)
   extern bool lvgl_wait_for_move;
+  extern bool auto_manu_level_sel;
   typedef enum {
     leveling_start,
     leveling_heat,
