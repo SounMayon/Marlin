@@ -30,6 +30,9 @@
 
 #include "powerloss.h"
 #include "../core/macros.h"
+#if ENABLED(POWER_LOSS_STORAGE_EEPROM)
+  #include "../module/settings.h"
+#endif
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
@@ -139,18 +142,26 @@ bool PrintJobRecovery::check() {
  */
 void PrintJobRecovery::purge() {
   init();
-  card.removeJobRecoveryFile();
+  #if ENABLED(POWER_LOSS_STORAGE_EEPROM)
+    (void)settings.plr_data_save();
+  #else
+    card.removeJobRecoveryFile();
+  #endif
 }
 
 /**
  * Load the recovery data, if it exists
  */
 void PrintJobRecovery::load() {
-  if (exists()) {
-    open(true);
-    (void)file.read(&info, sizeof(info));
-    close();
-  }
+  #if ENABLED(POWER_LOSS_STORAGE_EEPROM)
+    (void)settings.plr_data_load();
+  #else
+    if (exists()) {
+      open(true);
+      (void)file.read(&info, sizeof(info));
+      close();
+    }
+  #endif
   debug(F("Load"));
 }
 
@@ -202,7 +213,14 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     // info.sdpos and info.current_position are pre-filled from the Stepper ISR
 
     info.feedrate = uint16_t(MMS_TO_MMM(feedrate_mm_s));
-    info.zraise = zraise;
+    #if ENABLED(POWER_LOSS_STORAGE_Z_VALUE)
+      // Save the physical Z coordinate after applying the active mesh.
+      xyze_pos_t leveled_position = current_position;
+      planner.apply_leveling(leveled_position);
+      info.zraise = leveled_position.z;
+    #else
+      info.zraise = zraise;
+    #endif
     info.flag.raised = raised;                      // Was Z raised before power-off?
 
     TERN_(GCODE_REPEAT_MARKERS, info.stored_repeat = repeat);
@@ -313,7 +331,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
     // Save the current position, distance that Z was (or should be) raised,
     // and a flag whether the raise was already done here.
-    if (IS_SD_PRINTING()) save(true, zraise, ENABLED(BACKUP_POWER_SUPPLY));
+    if (IS_SD_PRINTING() || IS_SD_PAUSED())
+      save(true, zraise, ENABLED(BACKUP_POWER_SUPPLY));
 
     // Tell the LCD about the outage, even though it is about to die
     TERN_(EXTENSIBLE_UI, ExtUI::onPowerLoss());
@@ -343,14 +362,16 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
  * Save the recovery info the recovery file
  */
 void PrintJobRecovery::write() {
-
-  debug(F("Write"));
-
-  open(false);
-  file.seekSet(0);
-  const int16_t ret = file.write(&info, sizeof(info));
-  if (ret == -1) DEBUG_ECHOLNPGM("Power-loss file write failed.");
-  if (!file.close()) DEBUG_ECHOLNPGM("Power-loss file close failed.");
+  #if ENABLED(POWER_LOSS_STORAGE_EEPROM)
+    (void)settings.plr_data_save();
+  #else
+    debug(F("Write"));
+    open(false);
+    file.seekSet(0);
+    const int16_t ret = file.write(&info, sizeof(info));
+    if (ret == -1) DEBUG_ECHOLNPGM("Power-loss file write failed.");
+    if (!file.close()) DEBUG_ECHOLNPGM("Power-loss file close failed.");
+  #endif
 }
 
 /**
@@ -410,7 +431,7 @@ void PrintJobRecovery::resume() {
 
   // Interpret the saved Z according to flags
   const float z_print = info.current_position.z,
-              z_raised = z_print + info.zraise;
+              z_raised = TERN(POWER_LOSS_STORAGE_Z_VALUE, info.zraise, z_print + info.zraise);
 
   //
   // Home the axes that can safely be homed, and
