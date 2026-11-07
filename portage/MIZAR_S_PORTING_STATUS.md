@@ -15,7 +15,7 @@ Aucune modification n’a été apportée aux branches main ou bugfix-2.1.x.
 
 ## Comparaison des bases Git
 
-À la révision de code d81, le port était 111 commits devant le tag 2.1.2.9, zéro derrière, avec le tag comme merge-base et 43 chemins modifiés ou ajoutés. Les commits suivants sur la branche concernent l’audit, la documentation et la livraison CI des assets; ils ne changent pas la base du firmware Mizar examinée.
+À la révision de code d81, le port était 111 commits devant le tag 2.1.2.9, zéro derrière, avec le tag comme merge-base et 43 chemins modifiés ou ajoutés. Les commits suivants sur la branche concernent l’audit, la documentation et la livraison CI des assets; ils ne changent pas la base du firmware Mizar examinée. Au commit d’audit 30116c2afd8c468279dbe95b028b9300620bb1c5, la comparaison actualisée donne 117 commits d’avance, zéro derrière et toujours 43 chemins modifiés/ajoutés par rapport au tag.
 
 Le Marlin main courant est divergent du tag 2.1.2.9 : 4 533 commits d’avance, 3 495 de retard, merge-base 082fce5e3e68c7b8657201e5de5adba0e4f86a33. La comparaison GitHub de main est limitée à 300 chemins. Il existe un conflit d’identifiant de carte : le port affecte 5068 à BOARD_GTM32_LCD35_A10, tandis que le Marlin main courant l’affecte à BOARD_MD_D301. Une migration vers main n’est pas incluse.
 
@@ -31,7 +31,7 @@ Le script et le linker réservent l’espace bootloader à 0x08007000, soit 28 K
 
 ## Compilation et empaquetage CI vérifiés
 
-Le workflow exécute pio run -e STM32F103VE_GTM32_maple. Le run [42400737794](https://github.com/SounMayon/Marlin/actions/runs/42400737794), sur le commit de workflow 48e640393147aa69f561b7f90163733c02dee5ab, a réussi.
+Le workflow exécute pio run -e STM32F103VE_GTM32_maple. Le run [42401350884](https://github.com/SounMayon/Marlin/actions/runs/42401350884), sur le commit 30116c2afd8c468279dbe95b028b9300620bb1c5, a réussi. Il a produit l’artefact 13585597584 (7 985 239 octets).
 
 Le journal confirme le téléchargement et la copie des ressources MKS, la création de firmware.bin, puis la vérification de 118 noms F(...) non commentés dans pic_manager.cpp. Tous les noms existent dans le dossier assets généré, avec comparaison insensible à la casse. L’artefact [mizar-s-marlin-2.1.2.9](https://github.com/SounMayon/Marlin/actions/runs/42400737794) inclut firmware.bin, firmware.elf et le dossier assets. Détails : [TFT_ASSETS.md](mizar-s/TFT_ASSETS.md).
 
