@@ -247,6 +247,7 @@ typedef struct UI_Config_Struct {
             manu_leveling_begin_flg:1,
             manu_leveling_done_flag:1;
     uint8_t leveling_type_save:1;
+    bool leveling_was_active:1;
   #endif
   uint8_t wifi_name[32];
   uint8_t wifi_key[64];
