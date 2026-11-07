@@ -193,10 +193,10 @@ static void event_handler(lv_obj_t *obj, lv_event_t event)
           set_bed_leveling_enabled(manual_leveling_was_active && leveling_is_valid());
 				}
 
-				if(leveling_is_valid()){
-					planner.leveling_active = true;
-					set_bed_leveling_enabled(true);
-				}
+				if (uiCfg.manu_leveling_done_flag) {
+          auto_manu_level_sel = false;
+          set_bed_leveling_enabled(true);
+        }
 				
 				lv_clear_manualLevel();
 				draw_return_ui();
@@ -280,7 +280,6 @@ void lv_flash_manual_level()
 		}
 	}
 
-	draw_manual_temps();
 	draw_manual_temps();
 }
 
