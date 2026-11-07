@@ -263,6 +263,7 @@ typedef struct UI_Config_Struct {
                            eSpeedN = 10,
                            eSpeedL =  1;
   uint8_t print_state;
+  uint8_t ledSwitch; // Mizar BLTouch status LED mode used by guided leveling
   uint8_t stepPrintSpeed;
   uint8_t waitEndMoves;
   uint8_t dialogType;
