@@ -115,7 +115,7 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
         if (!lvgl_wait_for_move) {
           if (parser.seen_test('N')) queue.inject(F("G28" TERN_(CAN_SET_LEVELING_AFTER_G28, "L0")));
           lvgl_wait_for_move = true;
-          queue.inject(F("G28\\nG29 S2"));
+          queue.inject(F("G28\nG29 S2"));
           return;
         }
       #else
