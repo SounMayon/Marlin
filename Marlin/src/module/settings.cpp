@@ -3133,7 +3133,14 @@ void MarlinSettings::reset() {
   // Global Leveling
   //
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height = (DEFAULT_LEVELING_FADE_HEIGHT));
-  TERN_(HAS_LEVELING, reset_bed_level());
+  #if ENABLED(MIZAR_S_DUAL_LEVELING)
+    set_bed_leveling_enabled(false);
+    bedlevel.reset();
+    mbl.reset();
+    auto_manu_level_sel = true;
+  #else
+    TERN_(HAS_LEVELING, reset_bed_level());
+  #endif
   #if ENABLED(MIZAR_S_DUAL_LEVELING)
     auto_manu_level_sel = true;
   #endif
