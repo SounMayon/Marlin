@@ -35,6 +35,13 @@
 #include "../../../module/probe.h"
 #include "../../queue.h"
 
+#if ENABLED(MIZAR_S_DUAL_LEVELING)
+  #include "../../../lcd/extui/mks_ui/draw_ui.h"
+  #if ENABLED(EEPROM_SETTINGS)
+    #include "../../../module/settings.h"
+  #endif
+#endif
+
 #if ENABLED(AUTO_BED_LEVELING_LINEAR)
   #include "../../../libs/least_squares_fit.h"
 #endif
@@ -278,6 +285,11 @@ G29_TYPE GcodeSuite::G29() {
 
   // Don't allow auto-leveling without homing first
   if (homing_needed_error()) G29_RETURN(false, false);
+
+  #if ENABLED(MIZAR_S_DUAL_LEVELING)
+    uiCfg.auto_leveling_point_status = leveling_doing;
+    uiCfg.auto_leveling_point_num = leveling_point_begin;
+  #endif
 
   // 3-point leveling gets points from the probe class
   #if ENABLED(AUTO_BED_LEVELING_3POINT)
@@ -717,7 +729,15 @@ G29_TYPE GcodeSuite::G29() {
           if (abl.verbose_level) SERIAL_ECHOLNPGM("Probing mesh point ", pt_index, "/", abl.abl_points, ".");
           TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), int(pt_index), int(abl.abl_points)));
 
-          abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
+          #if ENABLED(MIZAR_S_DUAL_LEVELING)
+            uiCfg.auto_leveling_point_num = uint8_t(pt_index);
+            if (uiCfg.auto_leveling_force_stop)
+              abl.measured_z = NAN;
+            else
+              abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
+          #else
+            abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
+          #endif
 
           if (isnan(abl.measured_z)) {
             set_bed_leveling_enabled(abl.reenable);
@@ -955,6 +975,25 @@ G29_TYPE GcodeSuite::G29() {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
     planner.synchronize();
     process_subcommands_now(F(Z_PROBE_END_SCRIPT));
+  #endif
+
+  #if ENABLED(MIZAR_S_DUAL_LEVELING)
+    if (isnan(abl.measured_z)) {
+      // An aborted/failed ABL pass must restore the previous automatic mesh
+      // and the mode that was selected before opening the leveling screen.
+      uiCfg.auto_leveling_force_stop = true;
+      uiCfg.auto_leveling_point_status = leveling_stop;
+      leveling_data_restore(true);
+      auto_manu_level_sel = uiCfg.leveling_type_save;
+      set_bed_leveling_enabled(uiCfg.leveling_was_active && leveling_is_valid());
+      lvgl_wait_for_move = false;
+    }
+    else if (!abl.dryrun) {
+      uiCfg.auto_leveling_point_status = leveling_done;
+      #if ENABLED(EEPROM_SETTINGS)
+        settings.save();
+      #endif
+    }
   #endif
 
   TERN_(HAS_MULTI_HOTEND, if (abl.tool_index != 0) tool_change(abl.tool_index));
