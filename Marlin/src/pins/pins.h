@@ -537,7 +537,9 @@
 #elif MB(GTM32_MINI_A30)
   #include "stm32f1/pins_GTM32_MINI_A30.h"          // STM32F1                              env:STM32F103VE env:STM32F103VE_GTM32_maple
 #elif MB(GTM32_REV_B)
-  #include "stm32f1/pins_GTM32_REV_B.h"             // STM32F1                              env:STM32F103VE env:STM32F103VE_GTM32_maple
+  #include "stm32f1/pins_GTM32_REV_B.h"
+#elif MB(GTM32_LCD35_A10)
+  #include "stm32f1/pins_GTM32_LCD35_A10.h"             // STM32F1                              env:STM32F103VE env:STM32F103VE_GTM32_maple
 #elif MB(MORPHEUS)
   #include "stm32f1/pins_MORPHEUS.h"                // STM32F1                              env:STM32F103RE env:STM32F103RE_maple
 #elif MB(CHITU3D)
