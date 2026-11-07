@@ -87,6 +87,9 @@ public:
   static void _reset()              { command(BLTOUCH_RESET, BLTOUCH_RESET_DELAY); }
 
   static void _selftest()           { command(BLTOUCH_SELFTEST, BLTOUCH_DELAY); }
+  // Geeetech MKS LVGL names retained for compatibility with the guided leveling screens.
+  static void _colorLedOn()         { command(BLTOUCH_SELFTEST, BLTOUCH_DELAY); }
+  static void _whiteLedOn()         { command(BLTOUCH_MODE_STORE, BLTOUCH_MODE_STORE_DELAY); }
 
   static void _set_SW_mode()        { command(BLTOUCH_SW_MODE, BLTOUCH_DELAY); }
   static void _reset_SW_mode()      { if (triggered()) _stow(); else _deploy(); }
