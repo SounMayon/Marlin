@@ -34,6 +34,11 @@
 #endif
 
 bool leveling_is_valid();
+#if ENABLED(MIZAR_S_DUAL_LEVELING)
+  // mode=true backs up/restores the automatic bilinear dataset; false the manual MBL dataset.
+  void leveling_data_backup(const bool automatic_mode);
+  void leveling_data_restore(const bool automatic_mode);
+#endif
 void set_bed_leveling_enabled(const bool enable=true);
 void reset_bed_level();
 
