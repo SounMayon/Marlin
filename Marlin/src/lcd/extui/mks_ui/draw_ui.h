@@ -53,6 +53,10 @@
 #include "draw_about.h"
 #include "draw_change_speed.h"
 #include "draw_manuaLevel.h"
+#if ENABLED(MIZAR_S_DUAL_LEVELING)
+  #include "draw_autoLevel.h"
+  #include "draw_autolevel_menu.h"
+#endif
 #include "draw_error_message.h"
 #include "printer_operation.h"
 #include "draw_machine_para.h"
@@ -207,6 +211,13 @@ typedef struct {
   celsius_t filament_limit_temp;
   float     pausePosX, pausePosY, pausePosZ;
   uint32_t  curFilesize;
+  #if ENABLED(MIZAR_S_DUAL_LEVELING)
+    float bk_abl_start_x, bk_abl_start_y;
+    float bk_abl_grid_x, bk_abl_grid_y;
+    float bk_abl_z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+    float bk_mbl_z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+    float bk_mbl_z_offset;
+  #endif
 } CFG_ITMES;
 
 typedef struct UI_Config_Struct {
@@ -226,6 +237,17 @@ typedef struct UI_Config_Struct {
           filament_unloading_completed:1,
           filament_loading_time_flg:1,
           filament_unloading_time_flg:1;
+  #if ENABLED(MIZAR_S_DUAL_LEVELING)
+    uint8_t auto_leveling_point_status;
+    uint8_t auto_leveling_point_num:5,
+            auto_leveling_heat_flg:1,
+            auto_leveling_force_stop:1,
+            auto_leveling_done_flag:1;
+    uint8_t manu_leveling_heat_flg:1,
+            manu_leveling_begin_flg:1,
+            manu_leveling_done_flag:1;
+    uint8_t leveling_type_save:1;
+  #endif
   uint8_t wifi_name[32];
   uint8_t wifi_key[64];
   uint8_t cloud_hostUrl[96];
@@ -426,6 +448,28 @@ typedef enum {
   GCodeCommand,
 } keyboard_value_state;
 extern keyboard_value_state keyboard_value;
+
+#if ENABLED(MIZAR_S_DUAL_LEVELING)
+  typedef enum {
+    leveling_start,
+    leveling_heat,
+    leveling_home,
+    leveling_doing,
+    leveling_done,
+    leveling_saved,
+    leveling_recover,
+    leveling_stop
+  } auto_leveling_state;
+
+  typedef enum {
+    leveling_point_begin,
+    leveling_point_1, leveling_point_2, leveling_point_3, leveling_point_4,
+    leveling_point_5, leveling_point_6, leveling_point_7, leveling_point_8,
+    leveling_point_9, leveling_point_10, leveling_point_11, leveling_point_12,
+    leveling_point_13, leveling_point_14, leveling_point_15, leveling_point_16,
+    leveling_point_end
+  } auto_leveling_point;
+#endif
 
 extern CFG_ITMES gCfgItems;
 extern UI_CFG uiCfg;
