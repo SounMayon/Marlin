@@ -16,7 +16,7 @@ Dernière mise à jour : 2026-11-07 (Europe/Paris) — audit statique MBL et che
 - `46520a3` — affectation PA15 au capteur filament natif (à contrôler avec la sélection de l'écran MKS).
 - `b636a8a` — activation du second pilote Z.
 
-Tête actuelle avant ce checkpoint : `4e63e93425beb410a890f12587cdfe554984ee32`. Audit du parcours LVGL effectué sur cette base. Les avancées dual-leveling et PLR décrites ci-dessous sont présentes dans l'historique. Ce journal est actualisé à chaque checkpoint.
+Tête actuelle avant ce checkpoint : `8af51727ad382e6ef1c1b4062cda1a5e9677a031`. Audit du parcours LVGL et de l'API de parsing effectué sur cette base. Les avancées dual-leveling et PLR décrites ci-dessous sont présentes dans l'historique. Ce journal est actualisé à chaque checkpoint.
 
 ## Architecture de nivellement retrouvée dans le firmware Geeetech
 
@@ -54,7 +54,7 @@ Les changements suivants sont déjà committés sur la branche dédiée :
 - `G29` et `M421` dispatchent vers des handlers spécifiques ABL ou MBL ; `G42` suit les coordonnées du maillage actif.
 - `M420` gère sélection, affichage et recentrage de la grille active.
 - `M500/M501` enregistrent/restaurent séparément la grille manuelle et le sélecteur de mode. `M502` réinitialise le mode vers ABL.
-- Audit de `M421_MBL` : ajout du contrôle des bornes `I/J` avant indexation de la grille. Les indices hors plage sont maintenant rejetés avec `STR_ERR_MESH_XY`, comme pour la grille ABL.
+- Audit de `M421_MBL` : `I/J` sont lus avec `parser.value_long()` et conservés en `int32_t`, puis contrôlés avant toute indexation de la grille. Les valeurs hors plage sont rejetées avec `STR_ERR_MESH_XY`, comme pour la grille ABL.
 - La version EEPROM de la configuration a été incrémentée de `V88` à `V89`, car le schéma de stockage a changé.
 
 **Conséquence au premier flash :** ne pas réutiliser aveuglément les anciens paramètres EEPROM. Charger les valeurs par défaut (`M502`), puis sauvegarder (`M500`) après vérification du démarrage et du comportement des axes. Les anciens décalages/profils peuvent devoir être restaurés manuellement à partir d'une sauvegarde préalable.
@@ -74,8 +74,8 @@ Ces jalons sont sauvegardés dans l'historique Git de la branche. L'état de com
 
 ## Checkpoint courant — 2026-11-07
 
-- Branche distante vérifiée : `mizar-s-marlin-2.1.2.9`, tête `4496ce40b0e9d11ade3f550dee3e0dfe281def5e` avant ce commit. Aucun changement demandé ou appliqué à `main` ni à `bugfix-2.1.x`.
-- Correction statique ciblée : `M421_MBL` vérifie désormais `I` et `J` contre `GRID_MAX_POINTS_X/Y` avant l'accès à `mbl.z_values`; les indices négatifs et trop grands sont refusés. Le contenu précédent pouvait indexer hors limites avec des indices positifs excessifs.
+- Branche distante vérifiée : `mizar-s-marlin-2.1.2.9`, tête avant ce checkpoint `8af51727ad382e6ef1c1b4062cda1a5e9677a031`. Aucun changement demandé ou appliqué à `main` ni à `bugfix-2.1.x`.
+- `M421_MBL` lit les index via `parser.value_long()` dans un `int32_t` avant de vérifier `GRID_MAX_POINTS_X/Y`, ce qui évite le rétrécissement prématuré des grandes valeurs avant leur rejet.
 - Les fichiers des écrans LVGL automatiques/manuels et les en-têtes de langues EN/FR sont déjà présents dans la branche. Leur parcours complet, l'association des chaînes de texte et les ressources binaires restent à auditer; leur présence seule ne prouve pas que les workflows ni les assets sont intégrés correctement.
 - CI : un workflow Mizar dédié existe; aucune compilation n'a été exécutée ou confirmée pendant cet audit. L'état C++/link reste donc non vérifié.
 - Runout, reprise après coupure, PLR et comportement des callbacks LVGL restent non validés statiquement de bout en bout et matériellement.
