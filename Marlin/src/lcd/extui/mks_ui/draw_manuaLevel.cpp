@@ -125,7 +125,7 @@ static void draw_current_zoffset(bool only_disp)
 
 	const float v = current_position.z;
 	ZERO(public_buf_l);
-	sprintf_P(public_buf_l, PSTR("%s %s"), leveling_menu.manuallevelz, ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
+	sprintf_P(public_buf_l, PSTR("%s %s"), mizar_leveling_text(MIZAR_TEXT_MANUAL_Z), ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
 	lv_label_set_text(leve_hight_value, public_buf_l);
 }
 
@@ -157,7 +157,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event)
 				if (manual_leveling_index < GRID_MAX_POINTS)
 				{
 					ZERO(public_buf_l);
-					sprintf_P(public_buf_l, PSTR("%s %i/%u"), leveling_menu.levelnext, int(manual_leveling_index + 1), GRID_MAX_POINTS);
+					sprintf_P(public_buf_l, PSTR("%s %i/%u"), mizar_leveling_text(MIZAR_TEXT_NEXT_POINT), int(manual_leveling_index + 1), GRID_MAX_POINTS);
 					lv_label_set_text(level_point_info, public_buf_l);
 				}
 			}
@@ -225,7 +225,7 @@ void lv_flash_manual_level()
 		{
 			uiCfg.manu_leveling_heat_flg = 0;
 			
-			lv_label_set_text(level_point_info, leveling_menu.levelhome);
+			lv_label_set_text(level_point_info, mizar_leveling_text(MIZAR_TEXT_LEVEL_HOME));
 			queue.inject_P(PSTR("G28"));
 		}
 	}
@@ -236,7 +236,7 @@ void lv_flash_manual_level()
 			if (all_axes_homed())
 			{
 				flg_leveling_start = false;
-				lv_label_set_text(level_point_info, leveling_menu.manuallevelwait);
+				lv_label_set_text(level_point_info, mizar_leveling_text(MIZAR_TEXT_MANUAL_WAIT));
 			}
 		}
 
@@ -261,7 +261,7 @@ void lv_flash_manual_level()
 				lvgl_wait_for_move = true;
 				queue.inject_P(PSTR("G29 S2\nG28"));
 				flg_flash_id = 0; // leveling done information
-				lv_label_set_text(level_point_info, leveling_menu.leveldone);
+				lv_label_set_text(level_point_info, mizar_leveling_text(MIZAR_TEXT_LEVEL_DONE));
 				lv_imgbtn_set_src(buttonCfm, LV_BTN_STATE_REL, "F:/bmp_confirm_dis.bin");
 				lv_obj_set_click(buttonCfm, 0);
 			}
@@ -412,7 +412,7 @@ void lv_draw_manualLevel(void)
 	lv_obj_set_style(level_point_info, &style_yellow_label);
 	lv_label_set_align(level_point_info, LV_LABEL_ALIGN_CENTER);
 	lv_obj_align(level_point_info, NULL, LV_ALIGN_IN_TOP_MID, 0, 40);
-	lv_label_set_text(level_point_info, leveling_menu.levelhome);
+	lv_label_set_text(level_point_info, mizar_leveling_text(MIZAR_TEXT_LEVEL_HOME));
 
 	leve_hight_value = lv_label_create(scr, NULL);
 	lv_label_set_long_mode(leve_hight_value, LV_LABEL_LONG_BREAK);
@@ -437,9 +437,9 @@ void lv_draw_manualLevel(void)
 		thermalManager.setTargetBed(BLTOUCH_HEAT_BED_TEMP);
 		thermalManager.start_watching_bed();
 		#endif
-		lv_label_set_text(level_point_info, leveling_menu.level_heat);
+		lv_label_set_text(level_point_info, mizar_leveling_text(MIZAR_TEXT_HEATING));
 	#else
-		lv_label_set_text(level_point_info, leveling_menu.levelhome);
+		lv_label_set_text(level_point_info, mizar_leveling_text(MIZAR_TEXT_LEVEL_HOME));
 	#endif
 	
 	uiCfg.manu_leveling_heat_flg = 1;
