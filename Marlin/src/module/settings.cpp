@@ -3680,7 +3680,32 @@ void MarlinSettings::reset() {
 
       gcode.M420_report(forReplay);
 
-      #if ENABLED(MESH_BED_LEVELING)
+      #if ENABLED(MIZAR_S_DUAL_LEVELING)
+
+        if (leveling_is_valid()) {
+          if (auto_manu_level_sel) {
+            for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; ++py) {
+              for (uint8_t px = 0; px < GRID_MAX_POINTS_X; ++px) {
+                CONFIG_ECHO_START();
+                SERIAL_ECHOPGM("  G29 W I", px, " J", py);
+                SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(bedlevel.z_values[px][py]), 5);
+              }
+            }
+          }
+          else {
+            for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; ++py) {
+              for (uint8_t px = 0; px < GRID_MAX_POINTS_X; ++px) {
+                CONFIG_ECHO_START();
+                SERIAL_ECHOPGM("  G29 S3 I", px, " J", py);
+                SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(mbl.z_values[px][py]), 5);
+              }
+            }
+            CONFIG_ECHO_START();
+            SERIAL_ECHOLNPAIR_F("  G29 S4 Z", LINEAR_UNIT(mbl.z_offset), 5);
+          }
+        }
+
+      #elif ENABLED(MESH_BED_LEVELING)
 
         if (leveling_is_valid()) {
           for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; ++py) {
