@@ -38,6 +38,10 @@
 #include "draw_ready_print.h"
 #include "draw_language.h"
 #include "draw_set.h"
+#if ENABLED(MIZAR_S_DUAL_LEVELING)
+  // C++ linkage: shared with bedlevel.h and MarlinCore.cpp.
+  extern bool auto_manu_level_sel;
+#endif
 #include "draw_tool.h"
 #include "draw_print_file.h"
 #include "draw_dialog.h"
@@ -460,7 +464,6 @@ extern keyboard_value_state keyboard_value;
 
  #if ENABLED(MIZAR_S_DUAL_LEVELING)
   extern bool lvgl_wait_for_move;
-  extern bool auto_manu_level_sel;
   typedef enum {
     MIZAR_TEXT_LEVEL_HOME,
     MIZAR_TEXT_MANUAL_WAIT,
