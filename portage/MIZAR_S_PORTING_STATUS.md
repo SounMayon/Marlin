@@ -16,7 +16,7 @@ Dernière mise à jour : 2026-11-07 (Europe/Paris) — audit statique MBL et che
 - `46520a3` — affectation PA15 au capteur filament natif (à contrôler avec la sélection de l'écran MKS).
 - `b636a8a` — activation du second pilote Z.
 
-Tête actuelle après ce checkpoint : `efb5473add214c4407f5324d84e48a3ac54faf3a` (parent `4496ce40b0e9d11ade3f550dee3e0dfe281def5e`). Audit effectué sur cette base. Les avancées dual-leveling et PLR décrites ci-dessous sont présentes dans l'historique. Ce journal est actualisé à chaque checkpoint.
+Tête actuelle avant ce checkpoint : `4e63e93425beb410a890f12587cdfe554984ee32`. Audit du parcours LVGL effectué sur cette base. Les avancées dual-leveling et PLR décrites ci-dessous sont présentes dans l'historique. Ce journal est actualisé à chaque checkpoint.
 
 ## Architecture de nivellement retrouvée dans le firmware Geeetech
 
