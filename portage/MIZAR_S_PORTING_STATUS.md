@@ -6,19 +6,21 @@ Dernière mise à jour : 2026-11-07 (Europe/Paris)
 
 - Base : MarlinFirmware/Marlin 2.1.2.9, commit 7d300b42acadb3e7467e9f4b4fc03ebea592c2d0.
 - Branche de travail : mizar-s-marlin-2.1.2.9.
-- Branche auditée avant ce checkpoint : c48792b6b82b4952561b6d4292234c8200a6ed5a.
+- Branche auditée avant ce checkpoint : dcdc689471599e2d8a87f876ef0005e3980ea266.
 - Les branches main et bugfix-2.1.x n’ont pas été modifiées.
 
 ## État de compilation vérifié
 
-Le workflow GitHub Actions Mizar S Marlin 2.1.2.9 build exécute pio run -e STM32F103VE_GTM32_maple.
+Le workflow GitHub Actions « Mizar S Marlin 2.1.2.9 build » exécute `pio run -e STM32F103VE_GTM32_maple`.
 
-- Run 42391026752, commit a2f10634a558782f043a20b1b609f06d00534151 : échec sur les appels LVGL ambigus et des coordonnées de boutons non déclarées.
-- Run 42391389321, commit 178320bb0305db298697b5b6800c628d78940535 : écrans auto et menu compilent; échec sur un style LVGL jaune non déclaré.
-- Run 42391546130, commit 83da497d40881ffc358fad2f91cde9777d51a2c5 : échec dans le dialogue de pause, symboles optionnels absents.
-- Run 42391772326, commit ccc022b013af2a1c2a2451a647d3c6c68d22319c : échec sur manual_feedrate_mm_s et un style jaune absent.
-- Run 42391981474, commit c48792b6b82b4952561b6d4292234c8200a6ed5a : la vitesse Z et le premier style compilent; le second usage de style_yellow_label reste en erreur. Le présent checkpoint le remplace par le style disponible dans Marlin.
-- Aucune compilation réussie n’est encore démontrée. Il faut examiner le résultat du workflow déclenché par le présent checkpoint.
+- Run 42391026752, commit a2f10634a558782f043a20b1b609f06d00534151 : échec sur des appels LVGL ambigus et des positions de boutons non déclarées.
+- Run 42391389321, commit 178320bb0305db298697b5b6800c628d78940535 : les erreurs précédentes sont corrigées; échec sur `style_yellow_label` absent.
+- Run 42391546130, commit 83da497d40881ffc358fad2f91cde9777d51a2c5 : échec dans le dialogue de pause, réponses M600 optionnelles absentes.
+- Run 42391772326, commit ccc022b013af2a1c2a2451a647d3c6c68d22319c : échec sur `manual_feedrate_mm_s.z` et un style jaune absent.
+- Run 42391981474, commit c48792b6b82b4952561b6d4292234c8200a6ed5a : la vitesse Z et le premier style sont corrigés; un second `style_yellow_label` reste absent.
+- Run 42392232781, commit 10addfc5f676c206cb0d49ef122f31ba3eb86e72 : échec sur `pause_menu_response` quand `M600_PURGE_MORE_RESUMABLE` est désactivé.
+- Run 42392501067, commit dcdc689471599e2d8a87f876ef0005e3980ea266 : échec sur `BTN_ROW1_COL2_POS`, `BTN_ROW1_COL3_POS` et `BTN_ROW2_COL3_POS` dans `draw_tool.cpp`. Le compilateur a aussi signalé un littéral multi-caractère et un débordement dans le terminateur de `public_buf_l`; ce checkpoint corrige ces positions et utilise le vrai caractère nul.
+- Les avertissements du framework Maple et la dépréciation de cet environnement restent présents. Aucun build complet réussi n’est démontré; le prochain run doit être examiné.
 
 ## Travail déjà intégré
 

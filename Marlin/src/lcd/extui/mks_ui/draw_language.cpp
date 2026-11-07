@@ -74,7 +74,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 static void disp_language(const uint8_t language, const uint8_t state) {
   lv_obj_t *obj;
   uint16_t id;
-  public_buf_l[0] = '\\0';
+  public_buf_l[0] = '\0';
 
   if (language == LANG_FRENCH) {
     id = ID_FR;
