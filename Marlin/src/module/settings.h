@@ -66,6 +66,11 @@ class MarlinSettings {
       static bool load();      // Return 'true' if data was loaded ok
       static bool validate();  // Return 'true' if EEPROM data is ok
 
+      #if ALL(POWER_LOSS_RECOVERY, POWER_LOSS_STORAGE_EEPROM)
+        static bool plr_data_load();
+        static bool plr_data_save();
+      #endif
+
       static void first_load() {
         static bool loaded = false;
         if (!loaded && load()) loaded = true;
