@@ -547,6 +547,9 @@ private:
       #define G29_TYPE void
     #endif
     static G29_TYPE G29();
+    #if ENABLED(MIZAR_S_DUAL_LEVELING)
+      static void G29_MBL();
+    #endif
   #endif
 
   #if HAS_BED_PROBE
