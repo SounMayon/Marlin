@@ -58,8 +58,19 @@ void GcodeSuite::G42() {
   // Move to current_position, as modified by I, J, P parameters
   destination = current_position;
 
-  if (hasI) destination.x = bedlevel.get_mesh_x(ix);
-  if (hasJ) destination.y = bedlevel.get_mesh_y(iy);
+  #if ENABLED(MIZAR_S_DUAL_LEVELING)
+    if (auto_manu_level_sel) {
+      if (hasI) destination.x = bedlevel.get_mesh_x(ix);
+      if (hasJ) destination.y = bedlevel.get_mesh_y(iy);
+    }
+    else {
+      if (hasI) destination.x = mbl.get_mesh_x(ix);
+      if (hasJ) destination.y = mbl.get_mesh_y(iy);
+    }
+  #else
+    if (hasI) destination.x = bedlevel.get_mesh_x(ix);
+    if (hasJ) destination.y = bedlevel.get_mesh_y(iy);
+  #endif
 
   #if HAS_PROBE_XY_OFFSET
     if (parser.seen_test('P')) {
