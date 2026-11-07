@@ -176,10 +176,10 @@ void lv_flash_auto_level()
 		if (uiCfg.auto_leveling_force_stop)
 		{
 			if (uiCfg.auto_leveling_point_status == leveling_stop)
-				lv_label_set_text(auto_level_info, leveling_menu.levelstopover);
+				lv_label_set_text(auto_level_info, mizar_leveling_text(MIZAR_TEXT_LEVEL_STOPPED));
 			else
 			{
-				lv_label_set_text(auto_level_info, leveling_menu.levelforcestop);
+				lv_label_set_text(auto_level_info, mizar_leveling_text(MIZAR_TEXT_LEVEL_FORCE_STOP));
                 lv_label_set_style(labPoint1, LV_LABEL_STYLE_MAIN, &level_style_point_rel);
                 lv_label_set_style(labPoint2, LV_LABEL_STYLE_MAIN, &level_style_point_rel);
                 lv_label_set_style(labPoint3, LV_LABEL_STYLE_MAIN, &level_style_point_rel);
@@ -201,12 +201,12 @@ void lv_flash_auto_level()
 		else
 		{
 			if (uiCfg.auto_leveling_point_status == leveling_home)
-				lv_label_set_text(auto_level_info, leveling_menu.levelhome);
+				lv_label_set_text(auto_level_info, mizar_leveling_text(MIZAR_TEXT_LEVEL_HOME));
 			else if (uiCfg.auto_leveling_point_status == leveling_done)
 			{
 				// constexpr float dpo[] = NOZZLE_TO_PROBE_OFFSET;
 				// probe.offset.set(0, 0, dpo[Z_AXIS]);
-				lv_label_set_text(auto_level_info, leveling_menu.leveldone);
+				lv_label_set_text(auto_level_info, mizar_leveling_text(MIZAR_TEXT_LEVEL_DONE));
 
 				uiCfg.auto_leveling_point_num = leveling_point_end;
 				auto_manu_level_sel = 1;
@@ -241,7 +241,7 @@ void lv_flash_auto_level()
 
 			if (uiCfg.auto_leveling_point_num > leveling_point_begin && uiCfg.auto_leveling_point_num < leveling_point_end)
 			{
-				lv_label_set_text(auto_level_info, leveling_menu.levelnext);
+				lv_label_set_text(auto_level_info, mizar_leveling_text(MIZAR_TEXT_NEXT_POINT));
 
 				if (uiCfg.auto_leveling_point_num == leveling_point_1)
 				{
@@ -572,7 +572,7 @@ void lv_draw_auto_level(void)
 	lv_obj_set_size(auto_level_info, 250, 0);
 	lv_obj_set_style(auto_level_info, &style_yellow_label);
 	lv_label_set_align(auto_level_info, LV_LABEL_ALIGN_LEFT);
-	lv_label_set_text(auto_level_info, leveling_menu.autolevelstart);
+	lv_label_set_text(auto_level_info, mizar_leveling_text(MIZAR_TEXT_AUTO_START));
 
 	labExtraTemp = lv_label_create(scr, NULL);
     lv_obj_set_style(labExtraTemp, &level_style_point_rel);
@@ -624,7 +624,7 @@ void lv_draw_auto_level(void)
 	thermalManager.start_watching_bed();
 #endif
 #endif
-	lv_label_set_text(auto_level_info, leveling_menu.level_heat);
+	lv_label_set_text(auto_level_info, mizar_leveling_text(MIZAR_TEXT_HEATING));
 	uiCfg.auto_leveling_point_num = leveling_point_begin;
 	uiCfg.auto_leveling_point_status = leveling_heat;
 	SERIAL_ECHO_MSG("Auto Leveling Heat.");
