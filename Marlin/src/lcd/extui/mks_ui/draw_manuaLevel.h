@@ -27,6 +27,9 @@
 
 void lv_draw_manualLevel();
 void lv_clear_manualLevel();
+#if ENABLED(MIZAR_S_DUAL_LEVELING)
+  void lv_flash_manual_level();
+#endif
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */
