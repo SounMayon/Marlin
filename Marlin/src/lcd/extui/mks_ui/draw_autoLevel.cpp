@@ -632,9 +632,8 @@ void lv_draw_auto_level(void)
 
 void lv_clear_auto_level()
 {
-    lv_obj_del(scr);
-    if(disp_state_stack._disp_index > 0)
-        disp_state_stack._disp_index--;
+  // The Marlin 2.1.2.9 navigation stack is unwound by draw_return_ui().
+  lv_obj_del(scr);
 }
 
 #endif // HAS_TFT_LVGL_UI
