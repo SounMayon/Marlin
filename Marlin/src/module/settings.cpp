@@ -609,6 +609,50 @@ MarlinSettings settings;
 
 uint16_t MarlinSettings::datasize() { return sizeof(SettingsData); }
 
+#if ALL(POWER_LOSS_RECOVERY, POWER_LOSS_STORAGE_EEPROM)
+  // Keep the recovery record separate from the regular settings payload.
+  // The 32-byte gap covers the version/CRC trailer and future small layout growth.
+  #define EEPROM_OFFSET_POWEROFF ((EEPROM_OFFSET + sizeof(SettingsData) + 31) & ~3U)
+  static_assert(
+    EEPROM_OFFSET_POWEROFF + sizeof(uint16_t) + sizeof(job_recovery_info_t) <= MARLIN_EEPROM_SIZE,
+    "Mizar S EEPROM PLR record exceeds the board EEPROM emulation area."
+  );
+
+  bool MarlinSettings::plr_data_load() {
+    if (!recovery.enabled) return true;
+
+    uint16_t stored_crc = 0;
+    if (!EEPROM_START(EEPROM_OFFSET_POWEROFF)) return false;
+    EEPROM_READ_(stored_crc);
+    working_crc = 0;
+    EEPROM_READ_(recovery.info);
+    EEPROM_FINISH();
+
+    if (working_crc == stored_crc) return true;
+
+    // Reject a torn write or data from an incompatible layout.
+    recovery.info.valid_head = 0;
+    recovery.info.valid_foot = 0;
+    return false;
+  }
+
+  bool MarlinSettings::plr_data_save() {
+    if (!recovery.enabled) return true;
+    if (!EEPROM_START(EEPROM_OFFSET_POWEROFF)) return false;
+
+    uint16_t crc_slot = 0;
+    EEPROM_SKIP(crc_slot);
+    working_crc = 0;
+    EEPROM_WRITE(recovery.info);
+
+    const uint16_t final_crc = working_crc;
+    eeprom_index = EEPROM_OFFSET_POWEROFF;
+    EEPROM_WRITE(final_crc);
+    EEPROM_FINISH();
+    return true;
+  }
+#endif
+
 /**
  * Post-process after Retrieve or Reset
  */
