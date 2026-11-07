@@ -1,5 +1,7 @@
 # Portage Geeetech Mizar S vers Marlin 2.1.2.9
 
+> **Note historique :** ce document conserve l’audit initial et des constats valables à la date de sa rédaction. Pour l’état courant de la compilation, des corrections et des blocages, consulter [`portage/MIZAR_S_PORTING_STATUS.md`](../MIZAR_S_PORTING_STATUS.md).
+
 ## Base logicielle verrouillée
 
 - Dépôt de travail : `SounMayon/Marlin`
