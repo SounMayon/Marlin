@@ -66,6 +66,10 @@ XPT2046 touch;
 
 #include <SPI.h>
 
+// TEMPORARY Mizar S color diagnostic: swap RGB565 byte order at the LVGL output.
+// Keep this define confined to the test branch until verified on the printer.
+#define MIZAR_S_RGB565_BYTE_SWAP
+
 #ifndef TFT_WIDTH
   #define TFT_WIDTH  480
 #endif
@@ -274,6 +278,14 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
 
   disp_drv_p = disp;
 
+  #if defined(MIZAR_S_RGB565_BYTE_SWAP)
+    // RGB565 byte-order diagnostic. The buffer is owned by LVGL and is regenerated
+    // for each flush; swap only the pixels in this flush area before the 16-bit FSMC write.
+    const uint32_t pixel_count = uint32_t(width) * uint32_t(height);
+    for (uint32_t i = 0; i < pixel_count; ++i)
+      color_p[i].full = __builtin_bswap16(color_p[i].full);
+  #endif
+
   SPI_TFT.setWindow((uint16_t)area->x1, (uint16_t)area->y1, width, height);
 
   #if ENABLED(USE_SPI_DMA_TC)
@@ -297,6 +309,10 @@ void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv
   width = x2 - x1 + 1;
   height = y2 - y1 + 1;
   SPI_TFT.setWindow((uint16_t)x1, (uint16_t)y1, width, height);
+  #if defined(MIZAR_S_RGB565_BYTE_SWAP)
+    // Keep solid-color fills consistent with the LVGL flush path.
+    bk_color.full = __builtin_bswap16(bk_color.full);
+  #endif
   SPI_TFT.tftio.WriteMultiple(bk_color.full, width * height);
   W25QXX.init(SPI_QUARTER_SPEED);
 }
