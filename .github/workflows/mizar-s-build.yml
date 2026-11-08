@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - mizar-s-marlin-2.1.2.9
+      - test/color-swap
   workflow_dispatch:
 
 permissions:
