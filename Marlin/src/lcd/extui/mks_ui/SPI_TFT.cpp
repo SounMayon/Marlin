@@ -34,6 +34,9 @@
 
 #include "draw_ui.h"
 
+// TEMPORARY Mizar S diagnostic: the boot logo bypasses the LVGL flush callback.
+#define MIZAR_S_RGB565_BYTE_SWAP
+
 TFT SPI_TFT;
 
 // use SPI1 for the spi tft.
@@ -76,6 +79,11 @@ void TFT::lcdDrawLogo() {
     setWindow(0, 0, TFT_WIDTH, TFT_HEIGHT);
     for (uint16_t i = 0; i < (TFT_HEIGHT); i++) {
       picLogoRead((uint8_t *)"", (uint8_t *)bmp_public_buf, (TFT_WIDTH) * 2);
+      #if defined(MIZAR_S_RGB565_BYTE_SWAP)
+        uint16_t *pixels = (uint16_t *)bmp_public_buf;
+        for (uint16_t x = 0; x < TFT_WIDTH; ++x)
+          pixels[x] = __builtin_bswap16(pixels[x]);
+      #endif
       tftio.WriteSequence((uint16_t *)bmp_public_buf, TFT_WIDTH);
     }
   #endif
