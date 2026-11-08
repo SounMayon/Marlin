@@ -182,6 +182,18 @@ static FSTR_P const assets[] = {
   F("bmp_set.bin"),
   F("bmp_tool.bin"),
 
+  // Geeetech Mizar S icons missing from the generic Makerbase pack
+  F("bmp_clear.bin"),
+  F("bmp_confirm.bin"),
+  F("bmp_confirm_dis.bin"),
+  F("bmp_led_color.bin"),
+  F("bmp_led_off.bin"),
+  F("bmp_led_white.bin"),
+  F("bmp_leveling_auto.bin"),
+  F("bmp_leveling_manual.bin"),
+  F("bmp_machine_para_dis.bin"),
+  F("bmp_motor_off.bin"),
+
   // Base icons
   F("bmp_arrow.bin"),
   F("bmp_back70x40.bin"),

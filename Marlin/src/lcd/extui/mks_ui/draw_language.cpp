@@ -74,23 +74,22 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 static void disp_language(const uint8_t language, const uint8_t state) {
   lv_obj_t *obj;
   uint16_t id;
-  public_buf_l[0] = '\0';
+  const char *image_path;
 
   if (language == LANG_FRENCH) {
     id = ID_FR;
     obj = buttonFR;
-    strcpy_P(public_buf_l, PSTR("F:/bmp_french"));
+    image_path = state == SELECTED ? "F:/bmp_french_sel.bin" : "F:/bmp_french.bin";
   }
   else {
     id = ID_EN;
     obj = buttonEN;
-    strcpy_P(public_buf_l, PSTR("F:/bmp_english"));
+    image_path = state == SELECTED ? "F:/bmp_english_sel.bin" : "F:/bmp_english.bin";
   }
 
-  if (state == SELECTED) strcat_P(public_buf_l, PSTR("_sel"));
-  strcat_P(public_buf_l, PSTR(".bin"));
   lv_obj_set_event_cb_mks(obj, event_handler, id, "", 0);
-  lv_imgbtn_set_src_both(obj, public_buf_l);
+  // Use persistent string literals: LVGL keeps the source pointer for later redraws.
+  lv_imgbtn_set_src_both(obj, image_path);
   if (state == UNSELECTED) lv_obj_refresh_ext_draw_pad(obj);
 }
 
@@ -102,7 +101,7 @@ void lv_draw_language() {
                                   BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_FR);
   lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back,
                        BTN_X_PIXEL * 3 + INTERVAL_V * 4,
-                       BTN_Y_PIXEL + BTN_Y_PIXEL / 2 + titleHeight,
+                       BTN_Y_PIXEL + INTERVAL_H + titleHeight,
                        event_handler, ID_L_RETURN);
   disp_language(gCfgItems.language == LANG_FRENCH ? LANG_FRENCH : LANG_ENGLISH, SELECTED);
 }

@@ -34,6 +34,10 @@
 #include "../../../gcode/queue.h"
 #include "../../../inc/MarlinConfig.h"
 
+#if ENABLED(BLTOUCH)
+  #include "../../../feature/bltouch.h"
+#endif
+
 #if HAS_SUICIDE
   #include "../../../MarlinCore.h"
 #endif
@@ -50,12 +54,54 @@ enum {
   ID_S_LANGUAGE,
   ID_S_MACHINE_PARA,
   ID_S_EEPROM_SET,
-  ID_S_RETURN
+  ID_S_RETURN,
+  ID_S_LED
 };
+
+#if ENABLED(BLTOUCH)
+  static lv_obj_t *buttonLed, *labelLed;
+
+  static void draw_led_status() {
+    const bool french = gCfgItems.language == LANG_FRENCH;
+    const char *image, *label;
+    switch (uiCfg.ledSwitch) {
+      case 1:
+        image = "F:/bmp_led_white.bin";
+        label = french ? "LED blanche" : "LED white";
+        break;
+      case 2:
+        image = "F:/bmp_led_color.bin";
+        label = french ? "LED couleur" : "LED color";
+        break;
+      default:
+        image = "F:/bmp_led_off.bin";
+        label = french ? "LED éteinte" : "LED off";
+        break;
+    }
+    lv_imgbtn_set_src(buttonLed, LV_BTN_STATE_REL, image);
+    lv_imgbtn_set_src(buttonLed, LV_BTN_STATE_PR, image);
+    lv_label_set_text(labelLed, label);
+    lv_obj_align(labelLed, buttonLed, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+  }
+#endif
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   if (obj->mks_obj_id == ID_S_CONTINUE) return;
+  #if ENABLED(BLTOUCH)
+    if (obj->mks_obj_id == ID_S_LED) {
+      uiCfg.ledSwitch = (uiCfg.ledSwitch + 1) % 3;
+      if (uiCfg.ledSwitch == 1)
+        bltouch._whiteLedOn();
+      else if (uiCfg.ledSwitch == 2)
+        bltouch._colorLedOn();
+      else
+        bltouch._ledOff();
+      draw_led_status();
+      queue.enqueue_now(F("M500"));
+      return;
+    }
+  #endif
   if (obj->mks_obj_id == ID_S_MOTOR_OFF) {
     TERN(HAS_SUICIDE, suicide(), queue.enqueue_now(F("M84")));
     return;
@@ -115,7 +161,22 @@ void lv_draw_set() {
   lv_big_button_create(scr, "F:/bmp_eeprom_settings.bin", set_menu.eepromSet, INTERVAL_V, titleHeight, event_handler, ID_S_EEPROM_SET);
   lv_big_button_create(scr, "F:/bmp_fan.bin", set_menu.fan, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_S_FAN);
   lv_big_button_create(scr, "F:/bmp_about.bin", set_menu.about, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_S_ABOUT);
-  lv_big_button_create(scr, ENABLED(HAS_SUICIDE) ? "F:/bmp_manual_off.bin" : "F:/bmp_function1.bin", set_menu.TERN(HAS_SUICIDE, shutdown, motoroff), BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_S_MOTOR_OFF);
+  #if ENABLED(BLTOUCH)
+    buttonLed = lv_imgbtn_create(scr, NULL);
+    lv_obj_set_event_cb_mks(buttonLed, event_handler, ID_S_LED, NULL, 0);
+    lv_imgbtn_set_style(buttonLed, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonLed, LV_BTN_STATE_REL, &tft_style_label_rel);
+    lv_obj_set_pos(buttonLed, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight);
+    lv_btn_set_layout(buttonLed, LV_LAYOUT_OFF);
+    labelLed = lv_label_create_empty(buttonLed);
+    lv_obj_set_style(labelLed, &tft_style_label_rel);
+    draw_led_status();
+    #if HAS_ROTARY_ENCODER
+      if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonLed);
+    #endif
+  #else
+    lv_big_button_create(scr, ENABLED(HAS_SUICIDE) ? "F:/bmp_manual_off.bin" : "F:/bmp_function1.bin", set_menu.TERN(HAS_SUICIDE, shutdown, motoroff), BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_S_MOTOR_OFF);
+  #endif
   lv_big_button_create(scr, "F:/bmp_machine_para.bin", set_menu.machine_para, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_S_MACHINE_PARA);
   #if HAS_LANG_SELECT_SCREEN
     lv_big_button_create(scr, "F:/bmp_language.bin", set_menu.language, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_S_LANGUAGE);

@@ -24,10 +24,13 @@ jobs:
           python-version: "3.11"
 
       - name: Install PlatformIO
-        run: python -m pip install --upgrade pip platformio
+        run: python -m pip install --upgrade pip platformio pillow
 
       - name: Build Geeetech Mizar S firmware
         run: pio run -e STM32F103VE_GTM32_maple
+
+      - name: Prepare Geeetech Mizar S TFT icons
+        run: python tools/prepare_mizar_s_tft_assets.py .pio/build/STM32F103VE_GTM32_maple/assets
 
       - name: Verify LVGL TFT assets
         run: |
@@ -38,18 +41,31 @@ jobs:
           assets_dir = Path(".pio/build/STM32F103VE_GTM32_maple/assets")
           if not assets_dir.is_dir():
               raise SystemExit(f"LVGL assets directory missing: {assets_dir}")
-          required = set()
+
+          registered = set()
           for line in source.splitlines():
               line = line.strip()
               if line.startswith('F("'):
                   name = line.split('"')[1]
                   if name.casefold().endswith(".bin"):
-                      required.add(name.casefold())
+                      registered.add(name.casefold())
+
+          mizar_required = {
+              "bmp_clear.bin", "bmp_confirm.bin", "bmp_confirm_dis.bin",
+              "bmp_led_color.bin", "bmp_led_off.bin", "bmp_led_white.bin",
+              "bmp_leveling_auto.bin", "bmp_leveling_manual.bin",
+              "bmp_machine_para.bin", "bmp_machine_para_dis.bin",
+              "bmp_motor_off.bin", "bmp_mov.bin", "bmp_zero.bin",
+          }
+          unregistered = sorted(mizar_required - registered)
+          if unregistered:
+              raise SystemExit("Mizar S icons missing from pic_manager.cpp: " + ", ".join(unregistered))
+
           available = {path.name.casefold() for path in assets_dir.iterdir() if path.is_file()}
-          missing = sorted(required - available)
+          missing = sorted((registered | mizar_required) - available)
           if missing:
               raise SystemExit("Missing LVGL assets: " + ", ".join(missing))
-          print(f"Validated {len(required)} LVGL assets in {assets_dir}")
+          print(f"Validated {len(registered)} registered assets and {len(mizar_required)} Mizar S icons in {assets_dir}")
           PY
 
       - name: Upload build artifacts

@@ -83,14 +83,14 @@ PRINT_TIME print_time;
       "Manual"
     };
     static const char *const fr[] = {
-      "Mise a l'origine des axes",
-      "Deplacement termine. Ajustez Z puis validez.",
+      "Mise à l’origine des axes",
+      "Déplacement terminé. Ajustez Z, puis validez.",
       "Nivellement automatique",
-      "Chauffe avant nivellement",
+      "Chauffage avant le nivellement",
       "Point suivant",
-      "Nivellement termine",
-      "Arret du nivellement automatique...",
-      "Nivellement automatique arrete",
+      "Nivellement terminé",
+      "Arrêt du nivellement automatique...",
+      "Nivellement automatique arrêté",
       "Correction Z manuelle",
       "Choisissez le type de nivellement",
       "Automatique",
