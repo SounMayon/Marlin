@@ -90,6 +90,8 @@ public:
   // Geeetech MKS LVGL names retained for compatibility with the guided leveling screens.
   static void _colorLedOn()         { command(BLTOUCH_SELFTEST, BLTOUCH_DELAY); }
   static void _whiteLedOn()         { command(BLTOUCH_MODE_STORE, BLTOUCH_MODE_STORE_DELAY); }
+  // Geeetech Mizar S compatibility: disable the probe LED via SW mode.
+  static void _ledOff()             { command(BLTOUCH_SW_MODE, BLTOUCH_DELAY); }
 
   static void _set_SW_mode()        { command(BLTOUCH_SW_MODE, BLTOUCH_DELAY); }
   static void _reset_SW_mode()      { if (triggered()) _stow(); else _deploy(); }
