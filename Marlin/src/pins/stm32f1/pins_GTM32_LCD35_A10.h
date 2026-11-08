@@ -252,6 +252,21 @@
   #ifndef XPT2046_Y_OFFSET
    #define XPT2046_Y_OFFSET                 336 //349
   #endif
+
+  // MKS LVGL reads TOUCH_* calibration values. Reuse Geeetech's factory
+  // XPT2046 calibration instead of leaving the LVGL scale and offsets at 0.
+  #ifndef TOUCH_CALIBRATION_X
+    #define TOUCH_CALIBRATION_X              XPT2046_X_CALIBRATION
+  #endif
+  #ifndef TOUCH_CALIBRATION_Y
+    #define TOUCH_CALIBRATION_Y              XPT2046_Y_CALIBRATION
+  #endif
+  #ifndef TOUCH_OFFSET_X
+    #define TOUCH_OFFSET_X                   XPT2046_X_OFFSET
+  #endif
+  #ifndef TOUCH_OFFSET_Y
+    #define TOUCH_OFFSET_Y                   XPT2046_Y_OFFSET
+  #endif
 #elif ENABLED(TFT_CLASSIC_UI)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION          12149
