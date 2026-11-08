@@ -4,7 +4,7 @@ Dernière mise à jour : 2026-11-08 (Europe/Paris)
 
 ## Révisions et limites de l’audit
 
-- Dépôt constructeur : [Geeetech3D/Mizar-S, main, d3656d6db4bb89f552f9afd3aec013db02a1cff9](https://github.com/Geeetech3D/Mizar-S/tree/d3656d6db4bb89f552f9afd3aec013db02a1cff9), source Marlin 2.0.7.
+- Référence prioritaire et permanente pour le matériel, le firmware et le comportement d’origine : [dépôt constructeur Geeetech3D/Mizar-S](https://github.com/Geeetech3D/Mizar-S), source Marlin 2.0.7. Toute décision de portage doit être vérifiée par rapport à ce dépôt; les autres sources restent secondaires.
 - Base du port : [Marlin 2.1.2.9, 7d300b42acadb3e7467e9f4b4fc03ebea592c2d0](https://github.com/MarlinFirmware/Marlin/tree/7d300b42acadb3e7467e9f4b4fc03ebea592c2d0).
 - Code Mizar audité : [d81c6016694c6b01754f524dde5e877e401e144f](https://github.com/SounMayon/Marlin/tree/d81c6016694c6b01754f524dde5e877e401e144f).
 - Workflow et contrôle d’assets vérifiés : [48e640393147aa69f561b7f90163733c02dee5ab](https://github.com/SounMayon/Marlin/tree/48e640393147aa69f561b7f90163733c02dee5ab).
