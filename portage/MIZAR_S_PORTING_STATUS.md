@@ -1,6 +1,6 @@
 # Geeetech Mizar S — suivi du portage Marlin 2.1.2.9
 
-Dernière mise à jour : 2026-11-07 (Europe/Paris)
+Dernière mise à jour : 2026-11-08 (Europe/Paris)
 
 ## Révisions et limites de l’audit
 
@@ -59,8 +59,16 @@ La branche limite l’UI à français/anglais et contient les chaînes des pages
 
 Le paquet d’images MKS est épinglé par le script PlatformIO de Marlin 2.1.2.9, contrôlé dans le workflow, et joint à l’artefact CI. L’archive Geeetech fournie n’est pas utilisée comme jeu d’assets MKS; voir [TFT_ASSETS.md](mizar-s/TFT_ASSETS.md).
 
+## Essai matériel rapporté le 8 novembre 2026
+
+- **Chronologie clarifiée par l’utilisateur :** les photos de 00:55 à 01:00 ont été prises avant le renommage du firmware; elles montrent l’ancien firmware traitant les assets présents sur la carte. Les mentions « Erasing pics/fonts » et les noms de fichiers affichés confirment que cette ancienne version a lancé une mise à jour d’assets, pas que le nouveau firmware était installé.
+- **Après le renommage en `GTM32Source.bin` :** l’utilisateur identifie la vidéo et la photo de 01:35:39 comme postérieures au flash. La photo montre l’écran d’accueil français (« Prêt / Config / Impression ») avec les températures affichées. Cela concorde avec le démarrage du nouveau firmware jusqu’à l’interface LVGL; ce n’est pas une validation complète de l’affichage, du tactile ou des mouvements.
+- L’utilisateur indique que le tactile ne répond pas. Les tests de mouvement, chauffe, impression, runout et reprise n’ont pas été confirmés.
+- Les assets de la carte ont été écrits dans la mémoire de l’écran avant le flash du port. Il reste à confirmer que le nouveau firmware a ensuite rechargé le jeu complet d’assets associé au même build. Cette chronologie ne permet pas d’attribuer le défaut tactile ou les artefacts d’affichage à une cause unique.
+- Les photos intégrées à la conversation ont été examinées. La vidéo MP4 et le fichier texte des commandes sont fournis par chemin local, mais leur contenu n’a pas été lu indépendamment dans cet audit.
+
 ## État actuel
 
-**Build et contrôle statique des ressources réussis en CI. Port non validé sur la machine.** Les écarts MBL 16/9 points et l’absence de M600 automatique dans le chemin runout sont documentés; ils ne doivent pas être décrits comme une parité parfaite avec le firmware constructeur V2.0.1.
+**Compilation locale rapportée réussie par l’utilisateur et build CI réussi; démarrage du firmware après renommage rapporté avec écran d’accueil visible. Port matériel non validé.** Le test de l’écran est partiel; le tactile est déclaré inopérant. Les écarts MBL 16/9 points et l’absence de M600 automatique dans le chemin runout restent documentés; ils ne doivent pas être décrits comme une parité parfaite avec le firmware constructeur V2.0.1.
 
-Restent à vérifier sur une Mizar S : mise à jour et rendu TFT, écrans FR/EN, parcours ABL et MBL (dont sauvegarde séparée), polarité réelle de PA15 et reprise après runout, circuit PE3 et reprise PLR complète, migration EEPROM et impression. Le firmware GTM32Source.bin de 2023 contenu dans l’archive n’est pas le build du port et n’a pas été utilisé.
+À vérifier sur une Mizar S : recharger et confirmer les assets produits avec le même build du port, diagnostiquer séparément la lecture tactile, puis valider écrans FR/EN, parcours ABL et MBL (dont sauvegarde séparée), polarité réelle de PA15 et reprise après runout, circuit PE3 et reprise PLR complète, migration EEPROM et impression. Le firmware GTM32Source.bin de 2023 contenu dans l’archive n’est pas le build du port et n’a pas été utilisé.
